@@ -1,0 +1,9 @@
+export const orderlistSelector=(state)=>state.orderList.data;
+export const itemlistSelector=(state)=>state.itemList.data;
+export const paymentlistSelector=(state)=>state.paymentList;
+export const saleslistSelector=(state)=>state.salesList;
+export const invoicelistSelector=(state)=>state.invoiceList.data;
+export const rPaymentlistSelector=(state)=>state.rPayment;
+export const rSaleslistSelector=(state)=>state.rSales;
+export const statuslistSelector=(state)=>state.statusList.data;
+export const report8ListSelector=(state)=>state.report8List;
