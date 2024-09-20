@@ -16,7 +16,7 @@ import 'localstorage-polyfill';
 import ItemSlice, { fetchItems } from './source/redux/itemSlice'; 
 import OrderSlice from './source/redux/orderSlice';
 import statusSlice, { fetchStatus } from './source/redux/statusSlice';
-import invoiceSlice, { fetchInvoice } from './source/redux/invoiceSlice';
+//import invoiceSlice, { fetchInvoice } from './source/redux/invoiceSlice';
 import salesSlice from './source/redux/salesSlice';
 import paymentSlice from './source/redux/paymentSlice';
 import report8Slice from './source/redux/report8Slice';
@@ -44,8 +44,9 @@ useEffect(() => {
     }
     else {if (storagedItem)
     {
+      const _storagedItem = storagedItem.replace(/\'/g, '\"');
 
-      dispath(ItemSlice.actions.addItem(JSON.parse(storagedItem)));}
+      dispath(ItemSlice.actions.addItem(JSON.parse(_storagedItem)));}
     }
     const storagedStatus = localStorage.getItem(STATUS_STORAGE);
    
@@ -54,10 +55,13 @@ useEffect(() => {
     reloadTable(); 
    }
     else {if (storagedStatus)
-    {dispath(statusSlice.actions.addStatus(JSON.parse(storagedStatus)));}
+    {
+      const _storagedStatus = storagedStatus.replace(/\'/g, '\"');
+      dispath(statusSlice.actions.addStatus(JSON.parse(_storagedStatus)));
+    }
     }
  
-   loadInvoice(); 
+  // loadInvoice(); 
    getPaymentList();
 }, []);
 
@@ -138,7 +142,7 @@ useEffect(() => {
     //     return () => {
     //     abortController.abort();
     //     };  
-    dispath(fetchInvoice());
+  //  dispath(fetchInvoice());
   }
 
   const getPaymentList =()=>{
@@ -167,7 +171,7 @@ useEffect(() => {
     localStorage.setItem(ITEM_STORAGE, JSON.stringify(itemList));
   }, [itemList]);
   useEffect(() => {
-  
+   
     localStorage.setItem(STATUS_STORAGE, JSON.stringify(statusList));
   }, [statusList]);
   useEffect(() => {

@@ -1,16 +1,18 @@
 import * as React from 'react';
 import { View, Text,TouchableOpacity,StyleSheet,ScrollView,RefreshControl,Dimensions,Image,ActivityIndicator } from 'react-native';
-
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useEffect, useState,useCallback } from 'react';
-import { getStatus,getTable,checkStatus } from './source/api';
+import { generateInvoiceNumber } from './source/api';
 import { useDispatch,useSelector } from 'react-redux';
 //import {addStatus,table2Order,addOrderAction} from './source/redux/action';
 //import statusSlice, { fetchCheckStatus } from './source/redux/statusSlice';
 import { fetchStatus,fetchCheckStatus } from './source/redux/statusSlice';
 import orderSlice, { fetchOrder } from './source/redux/orderSlice';
-
+import invoiceSlice from './source/redux/invoiceSlice';
+import { convertNumber } from './source/api';
 import {orderlistSelector, statuslistSelector} from './source/redux/selector';
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants';
+import { faClock, faUsd } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -42,8 +44,9 @@ function Orderlist({ navigation,route}) {
 
  
   useEffect(()=>{
-    
+   
     reloadTable();
+
     
   },[route.params?.p])
 
@@ -69,7 +72,7 @@ function Orderlist({ navigation,route}) {
       };
 
       const TabletoOrder = (table)=>{
-    
+        
         dispath(fetchOrder(table));
       }
 
@@ -130,6 +133,9 @@ const back = useCallback(()=>{
 
 const clickTable = useCallback((item)=>{
       if (item[2]==0) {
+        const invoice = generateInvoiceNumber();
+
+        dispath(invoiceSlice.actions.addinvoice(invoice));
         dispath(orderSlice.actions.deleteOrder(item[1]));
         clearInterval(intervalID); 
         navigation.navigate('Orderdetail', { type: {item} });  
@@ -139,12 +145,15 @@ const clickTable = useCallback((item)=>{
         const p = new Promise(resolve=>{
           setLoading(true);
           resolve(dispath(fetchOrder(item[1])));
+   
         })
         p.then((data)=>
-        { //console.log(data);
+        { 
           if (data.meta.requestStatus=='fulfilled'){
             setLoading(false);
             clearInterval(intervalID); 
+           
+          //  dispath(invoiceSlice.actions.addinvoice(data.in));
             navigation.navigate('Orderdetail', { type: {item} });  
           }
 
@@ -200,7 +209,7 @@ function renderNavBar() {
               />
           </TouchableOpacity>
             
-          <View style={styles.containerTab}>
+    <View style={styles.containerTab}>
       <View style={styles.listTab}>
         <TouchableOpacity style={[styles.btnTab,tab===1 && styles.btnTabActive]} onPress={()=>pressTab(1)}>
         <Text style={[styles.textTab,tab===1 && styles.textActive]}>Bàn</Text>
@@ -210,7 +219,7 @@ function renderNavBar() {
         </TouchableOpacity>
       </View>
     </View>
-      </View>
+    </View>
   )
 }
 
@@ -245,6 +254,8 @@ function renderNavBar() {
         <View>
        
         <Text style={item[2]===0?styles.innerText:styles.innerText1}>{item[1]}</Text> 
+        <View style={{flexDirection:'row'}}><FontAwesomeIcon icon={faClock} size={15} padding={10} /><Text style={item[2]===0?styles._innerText:styles._innerText1}>{item[4]}</Text></View>
+        <View style={{flexDirection:'row'}}><FontAwesomeIcon icon={faUsd} size={15} padding={10} /><Text style={item[2]===0?styles.innerText:styles.innerText1}>{convertNumber(item[3])}</Text></View>
         </View>
        </TouchableOpacity> )
       
@@ -266,7 +277,7 @@ container:{
 flex:1,
 //justifyContent:'space-around',
 //alignItems:'center',
-padding: 20,
+padding: 17,
 //flexDirection:'row',
 //flexWrap:'nowrap',
 
@@ -286,13 +297,13 @@ button: {
   
   backgroundColor: "oldlace",
   alignSelf: "flex-start",
-  marginHorizontal: "1.8%",
-  marginBottom: 10,
+  marginHorizontal: "1.5%",
+  marginBottom: 8,
   alignItems:'center',
   //minWidth: "48%",
   justifyContent:'center',
-  width:110,
-  height:110,
+  width:114,
+  height:114,
   
   textAlign: "center",
 },
@@ -302,23 +313,34 @@ button1:{
   borderRadius: 17,
   
 //  backgroundColor: "#79B45D",
-  backgroundColor:'#EB8385',
+  backgroundColor:'#649ed2',
   alignSelf: "flex-start",
-  marginHorizontal: "1.8%",
-  marginBottom: 10,
+  marginHorizontal: "1.5%",
+  marginBottom: 8,
   alignItems:'center',
   //minWidth: "48%",
   justifyContent:'center',
-  width:110,
-  height:110,
+  width:114,
+  height:114,
   textAlign: "center",
 
 },
 innerText1: {
-  color: COLORS.white, ...FONTS.body3
+  color: COLORS.white, ...FONTS.body3,
+ padding :3
 },
 innerText: {
-  color: COLORS.primary, ...FONTS.body3
+  color: COLORS.primary, ...FONTS.body3,
+  padding :3
+},
+
+_innerText1: {
+  color: COLORS.white, ...FONTS.body4,
+  padding :3
+},
+_innerText: {
+  color: COLORS.primary, ...FONTS.body4,
+  padding :3
 },
 
 containerTab:{
@@ -335,11 +357,12 @@ listTab:{
  },
  btnTab:{
   width:Dimensions.get('window').width / 3,
- // borderTopLeftRadius:13,
- // borderTopRightRadius:13,
- borderRadius:10,
+  borderTopLeftRadius:13,
+  borderTopRightRadius:13,
+ borderRadius:13,
   flexDirection:'row',
-//  borderWidth:0.2,
+  borderWidth:0.5,
+  borderColor:'white',
   padding:10,
   justifyContent:'center',
  // backgroundColor:'#EBEBEB',

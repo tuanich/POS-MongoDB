@@ -1,10 +1,14 @@
 import { format } from "date-fns";
-import config from "../app.json";
-const url = config.url;
+import {url} from "@env";
+
+
+
+//import config from "../app.json";
+//const url = config.url;
 
 export const pay =(order,type,sum,invoice)=>{
- 
- invoice= generateInvoiceNumber(invoice);
+
+ //invoice= generateInvoiceNumber();
  var date = new Date();
  
  var options={hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'numeric',minute:'numeric',second:'numeric'};
@@ -12,13 +16,17 @@ export const pay =(order,type,sum,invoice)=>{
  
  if (typeof order[0].timeStamp != 'undefined')
  {
-   d = order[0].timeStamp; 
+ 
+  var da = new Date(order[0].timeStamp);;
+  // d = da.toLocaleString('en-US',options);
+  d= format(da,'MM/dd/yyyy, HH:mm:ss');
+   console.log(d);
 }
  else{
 //  d = date.toLocaleString('en-US', options);
   d= format(date,'MM/dd/yyyy, HH:mm:ss');
  
- }
+ } 
  const exportData = addToLine(order,type,d,invoice);
  const currentPayment = [[]];
  currentPayment[0][0] = d;
@@ -36,7 +44,7 @@ export const pay =(order,type,sum,invoice)=>{
  };
 
  const postAsync = async(data)=>{
-  
+    
     try {
        
        const response = await fetch(url + '?action=addSales', {
@@ -51,6 +59,7 @@ export const pay =(order,type,sum,invoice)=>{
            body: JSON.stringify(data)
          });
          const res = await response.json();
+      //   console.log("thanh cong:",res);
       // enter you logic when the fetch is successful
        //  console.log(res);
        } catch(error) {
@@ -62,6 +71,7 @@ export const pay =(order,type,sum,invoice)=>{
 };
 
 const addToLine =(order,type,d,invoice)=>{
+  
   let exportData=[];
   order.forEach(orderLine => {
     let currentLine = [];
@@ -70,7 +80,7 @@ const addToLine =(order,type,d,invoice)=>{
     currentLine[2] = orderLine.sku;
     currentLine[3] = orderLine.description;
     currentLine[4] = orderLine.quan;
-    currentLine[5] = parseInt(orderLine.subtotal);
+    currentLine[5] = orderLine.price;
     currentLine[6] = 0;
     currentLine[7] = type;
 
@@ -79,17 +89,19 @@ const addToLine =(order,type,d,invoice)=>{
 return exportData;
 }
 
-export function updateTable(data,table,d){
-  
-const exportData = addToLine(data,table,d);
+export function updateTable(data,table,d,invoice){
+
+const exportData = addToLine(data,table,d,invoice);
 const dataTable ={
   table: exportData
+  
 }  
 postTable(dataTable,table);
 }
 
-const postTable = async(data,table)=>{
- 
+const postTable = async(dataTable,table)=>{
+  
+  
   try {
      
      const response = await fetch(`${url}?action=addTables&table=${table}`, {
@@ -101,16 +113,17 @@ const postTable = async(data,table)=>{
          'Content-Type': 'application/json'
          },
          redirect:'follow',
-         body: JSON.stringify(data)
+         body: JSON.stringify(dataTable)
        });
+      
        const res = await response.json();
     // enter you logic when the fetch is successful
-    //console.log(res);
+    //   console.log("thanh cong:",res);
       
      } catch(error) {
    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
+        console.log("loi:",error)
        } 
   
 };
@@ -195,7 +208,8 @@ export const getInvoice = async()=>{
   
 };
 
-export const generateInvoiceNumber = (invoice)=>{
+export const generateInvoiceNumber = ()=>{
+  /*
   const date = new Date();
   const y= date.getFullYear();
   const m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth()+1);
@@ -227,7 +241,21 @@ else
     invoiceNumber=today+'-'+'001';
   }
   
-}
+}*/
+const date = new Date();
+   
+      let y= date.getFullYear();
+      y = y.toString().substring(-2);
+      const m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth()+1);
+      const d=date.getDate()<10?'0'+date.getDate():date.getDate();
+      const today= y.toString()+m.toString()+d.toString();
+
+      const h=date.getHours();
+      const ms=date.getMinutes();
+      const s=date.getSeconds();
+      const id =h*24+ms*60+s;
+      
+      this.invoiceNumber=today+'-'+id;
 return invoiceNumber;
 }
 
@@ -300,12 +328,12 @@ export const getReport67 = async(m,y,o)=>{
 };
 
 
-export const updateStatus = async(index,status)=>{
- 
+export const updateStatus = async(index,status,sum,ti)=>{
+
   let data ={};
   try {
      
-     let response = await fetch(`${url}?action=updateStatus&index=${index}&status=${status}`);
+     let response = await fetch(`${url}?action=updateStatus&index=${index}&status=${status}&sumtotal=${sum}&timestamp=${ti}`);
      let data = await response.json();
      //console.log(data);
  //    return data;
@@ -374,7 +402,7 @@ export const checkStatus = async(sku)=>{
 export const  table2Order=(table)=>{
   let order=[];
   table.forEach(item=>{
-    let dataString = {timeStamp:`${item[0]}`,sku:`${item[2]}`, description: `${item[3]}`, quan: `${item[4]}`, subtotal: `${item[5]}`, type:`${item[7]}`};
+    let dataString = {timeStamp:`${item[0]}`,invoice:`${item[1]}`,sku:`${item[2]}`, description: `${item[3]}`, quan: `${item[4]}`, price: `${item[5]}`, type:`${item[7]}`};
     order.push(dataString);
   })
   return order;

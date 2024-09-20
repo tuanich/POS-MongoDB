@@ -31,7 +31,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": ""
+    "description": "",
+    "plugins": [
+      "expo-font"
+    ]
   },
   "url": "https://script.google.com/macros/s/AKfycby8yK8zm2jMRp4t0qvqe5RI5KHg1uL-2J3qdvZpl_ETAv69lYriTgh0MTsVKvi10M_jRg/exec"
 }

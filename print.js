@@ -143,7 +143,7 @@ export default function print({navigation,route}) {
                 `<tr>
                 <td class="description">-${orderLine.description}</td>
                 <td class="quantity">${orderLine.quan}</td>
-                <td class="subtotal">${convertNumber(orderLine.subtotal)}</td>
+                <td class="subtotal">${convertNumber(orderLine.quan*orderLine.price)}</td>
                 </tr>`  ) } )+
            `</tbody>
         </table>

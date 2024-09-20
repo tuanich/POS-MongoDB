@@ -1,6 +1,7 @@
 import {createSlice,createAsyncThunk} from '@reduxjs/toolkit';
-import config from "../../app.json";
-const url = config.url;
+import {url} from "@env";
+//import config from "../../app.json";
+//const url = config.url;
 export default createSlice({
     name:'itemlist',
     initialState:{status:'idle',data:{}},

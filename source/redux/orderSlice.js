@@ -1,7 +1,8 @@
 import {createSlice,createAsyncThunk} from '@reduxjs/toolkit';
+import {url} from "@env";
 import { table2Order } from '../api';
-import config from "../../app.json";
-const url = config.url;
+//import config from "../../app.json";
+//const url = config.url;
 export default createSlice({
     name:'ordList',
     initialState:{status:'idle',data:{}},
@@ -38,10 +39,12 @@ export default createSlice({
       }
 })
 export const fetchOrder=createAsyncThunk('order/fetchOrder',async (table)=>{
-    const res = await fetch(`${url}?action=getTables&table=${table}`);
-    const data = await res.json();
-    let d={}
-    d[table]=table2Order(data.table);
-    //console.log(data.table);
-    return d;
-  })
+  const res = await fetch(`${url}?action=getTables&table=${table}`);
+  const data = await res.json();
+
+  let d={};
+  d[table]=table2Order(data.table);
+ 
+ // console.log(data.table);
+  return d;
+})
