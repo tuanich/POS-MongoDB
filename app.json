@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Trang POS V4.3.6",
+    "name": "Trang POS V4.3.9",
     "slug": "banhcanhghetrang",
-    "version": "1.0.0",
+    "version": "1.1.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -34,7 +34,13 @@
     "description": "",
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2e4b6c23-f7c6-45f2-9261-8a42ef40129a"
+      }
+    },
+    "owner": "tuanich"
   },
-  "url": "https://script.google.com/macros/s/AKfycby8yK8zm2jMRp4t0qvqe5RI5KHg1uL-2J3qdvZpl_ETAv69lYriTgh0MTsVKvi10M_jRg/exec"
+  "url": "https://script.google.com/macros/s/AKfycbzYJy2ns0PM5LYRvVHLg-UOV8uhjYwd9hQHACRBToxckAxrf95Es6TpkDB_frQvu03tGQ/exec"
 }
