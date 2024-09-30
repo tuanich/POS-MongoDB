@@ -61,7 +61,7 @@ function Headertable({ navigation, route }) {
           <TouchableOpacity style={[styles.btnTab, tab === 1 && styles.btnTabActive]}
             onPress={() => {
               setTab(1);
-              navigation.navigate('Tablelist', { params: { tabClick: 1 } });
+              navigation.navigate('Item', { p: 1 });
             }
             }>
             <Text style={[styles.textTab, tab === 1 && styles.textActive]}>Bàn</Text>
@@ -69,7 +69,7 @@ function Headertable({ navigation, route }) {
           <TouchableOpacity style={[styles.btnTab, tab === 2 && styles.btnTabActive]}
             onPress={() => {
               setTab(2);
-              navigation.navigate('Tablelist', { params: { tabClick: 2 } });
+              navigation.navigate('Tablelist', { p: 2 });
             }
             }>
             <Text style={[styles.textTab, tab === 2 && styles.textActive]}>Mang về</Text>

@@ -3,8 +3,10 @@ import { faSave, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants';
 import { convertNumber } from './source/api';
+import mapping from "./mapping.json";
 
 export default function renderNavBar({ save, back, paymentAlert, type, sum }) {
+
   return (
     <View
       style={{
@@ -42,7 +44,7 @@ export default function renderNavBar({ save, back, paymentAlert, type, sum }) {
 
 
         <View style={styles.header}>
-          <Text style={{ color: COLORS.white, ...FONTS.h2 }}>{type}</Text>
+          <Text style={{ color: COLORS.white, ...FONTS.h2 }}>{mapping.ban[type]}</Text>
         </View>
 
 

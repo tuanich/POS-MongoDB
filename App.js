@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import { View, TouchableOpacity, Text, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Headertable from './headerTable';
 import Home from './homescreen';
 import Tablelist from './tableList';
 import Orderd from './orderdetail';
@@ -20,6 +21,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Awesomeicons from 'react-native-vector-icons/FontAwesome6';
 import Materialicons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { COLORS, FONTS, SIZES, icons, } from './source/constants';
 
 //import AppLoading from 'expo-app-loading';
 import { useFonts } from 'expo-font';
@@ -132,9 +134,6 @@ function _ItemList({ navigation, route }) {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
-
-
           if (route.name === 'Foods') {
             iconName = focused
               ? 'bowl-food'
@@ -158,7 +157,7 @@ function _ItemList({ navigation, route }) {
           // You can return any component that you like here!
 
         },
-        tabBarActiveTintColor: 'tomato',
+        tabBarActiveTintColor: '#79B45D',
         tabBarInactiveTintColor: 'white',
         tabBarStyle: {
           backgroundColor: '#222222',
@@ -176,9 +175,9 @@ function _ItemList({ navigation, route }) {
 
       })}
     >
-      <Tab.Screen name="Foods" component={_Foods} initialParams={{ tab: 1 }} options={{ title: "Foods menu" }} />
-      <Tab.Screen name="Drinks" component={_Foods} initialParams={{ tab: 2 }} options={{ title: "Drinks menu" }} />
-      <Tab.Screen name="Others" component={_Foods} initialParams={{ tab: 3 }} options={{ title: "Others menu" }} />
+      <Tab.Screen name="Foods" component={_Foods} initialParams={{ tab: 1 }} options={{ title: "Món ăn" }} />
+      <Tab.Screen name="Drinks" component={_Foods} initialParams={{ tab: 2 }} options={{ title: "Thức uống" }} />
+      <Tab.Screen name="Others" component={_Foods} initialParams={{ tab: 3 }} options={{ title: "Các món khác" }} />
     </Tab.Navigator>
 
 
@@ -190,7 +189,16 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const BackButton = ({ onPress }) => <TouchableOpacity style={{ alignItems: "center", flexDirection: "row", justifyContent: "center" }} onPress={onPress}>
-  <Ionicons name="chevron-back" size={26} color="white" style={{ left: 4 }} />
+  <Image
+    source={icons.back_arrow}
+    style={{
+      width: 22,
+      height: 22,
+      tintColor: COLORS.white,
+      left: 15,
+      marginRight: 15
+    }}
+  />
   <Text onPress={onPress}></Text>
 </TouchableOpacity>
 
@@ -253,6 +261,7 @@ function App() {
 
 
             options={{
+              //  header: ({ navigation, route }) => (<Headertable navigation={navigation} route={route} />),
               headerShown: false,
 
             }}

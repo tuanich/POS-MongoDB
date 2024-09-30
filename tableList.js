@@ -6,6 +6,7 @@ import { generateInvoiceNumber } from './source/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { table2Order, getStatus } from './source/api';
 import { url } from "@env";
+import mapping from "./mapping.json";
 //import {addStatus,table2Order,addOrderAction} from './source/redux/action';
 //import statusSlice, { fetchCheckStatus } from './source/redux/statusSlice';
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
@@ -28,6 +29,7 @@ function Tablelist({ navigation, route }) {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
 
+
   const orderLists = useSelector(orderlistSelector);
   //console.log("orderlist0:", orderLists);
 
@@ -41,6 +43,7 @@ function Tablelist({ navigation, route }) {
 
 
   useEffect(() => {
+    //console.log( route.params);
 
     if (tab == 1)
       setList(statusList.filter(item => item[0] < 200));
@@ -319,14 +322,19 @@ function Tablelist({ navigation, route }) {
     </View> */}
         <View style={styles.container}>
           <View style={styles.box}>
+
             {list.map((item, index) =>
 
             (
               <TouchableOpacity style={item[2] === 0 ? styles.button : styles.button1} key={index} onPress={() => clickTable(item)} >
                 <View>
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{mapping.ban[item[1]]}</Text>
+                  </View>
+                  <View style={{ flexDirection: 'row' }}>
 
-                  <Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{item[1]}</Text>
-                  <View style={{ flexDirection: 'row' }}><FontAwesomeIcon icon={faClock} size={15} padding={10} /><Text style={item[2] === 0 ? styles._innerText : styles._innerText1}>{item[4]}</Text></View>
+                    <FontAwesomeIcon icon={faClock} size={15} padding={10} /><Text style={item[2] === 0 ? styles._innerText : styles._innerText1}>{item[4]}</Text></View>
+
                   <View style={{ flexDirection: 'row' }}><FontAwesomeIcon icon={faUsd} size={15} padding={10} /><Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{convertNumber(item[3])}</Text></View>
                 </View>
               </TouchableOpacity>)

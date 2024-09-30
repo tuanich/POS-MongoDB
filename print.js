@@ -1,39 +1,40 @@
 import * as React from 'react';
-import { View, StyleSheet, Button, Platform, Text} from 'react-native';
+import { View, StyleSheet, Button, Platform, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Print from 'expo-print';
 import Constants from 'expo-constants';
-import {convertNumber} from './source/api';
+import { convertNumber } from './source/api';
+import mapping from "./mapping.json";
 
 
 
-export default function print({navigation,route}) {
-    
+export default function print({ navigation, route }) {
+
     const [selectedPrinter, setSelectedPrinter] = React.useState();
-  //  console.log(route.params.day.day);
-    const day= route.params.day.day;
-    const type= route.params.type.type;
+    //  console.log(route.params.day.day);
+    const day = route.params.day.day;
+    const type = route.params.type.type;
     const sum = route.params.sum.sum;
     const order = route.params.order.order;
-    
+
     const print = async () => {
-      // On iOS/android prints the given html. On web prints the HTML from the current page.
-      await Print.printAsync({
-        html,
-        printerUrl: selectedPrinter?.url, // iOS only
-      });
-    }
-  
-   
-  
-    const selectPrinter = async () => {
-      const printer = await Print.selectPrinterAsync(); // iOS only
-      setSelectedPrinter(printer);
+        // On iOS/android prints the given html. On web prints the HTML from the current page.
+        await Print.printAsync({
+            html,
+            printerUrl: selectedPrinter?.url, // iOS only
+        });
     }
 
-    
-    
-  
+
+
+    const selectPrinter = async () => {
+        const printer = await Print.selectPrinterAsync(); // iOS only
+        setSelectedPrinter(printer);
+    }
+
+
+
+
     const html = `
     <html>
     <head>
@@ -117,7 +118,7 @@ export default function print({navigation,route}) {
                 <tr>
                 <th class="description"></th>
                 <th class="quantity"></th>
-                <th class="type">${type}</th>
+                <th class="type">${mapping.ban[type]}</th>
                 </tr>
                 <tr>
                     <td class="dotted-border" colspan="3"></td>
@@ -138,14 +139,16 @@ export default function print({navigation,route}) {
                 </tr>
                 
             </thead>
-            <tbody id="receipt-details">`            
-            +  order.map((orderLine) => {return (          
+            <tbody id="receipt-details">`
+        + order.map((orderLine) => {
+            return (
                 `<tr>
                 <td class="description">-${orderLine.description}</td>
                 <td class="quantity">${orderLine.quan}</td>
-                <td class="subtotal">${convertNumber(orderLine.quan*orderLine.price)}</td>
-                </tr>`  ) } )+
-           `</tbody>
+                <td class="subtotal">${convertNumber(orderLine.quan * orderLine.price)}</td>
+                </tr>`  )
+        }) +
+        `</tbody>
         </table>
     </div>
     <div class="receipt-summary">
@@ -209,7 +212,7 @@ export default function print({navigation,route}) {
     </body>
     </html>
     `;
-    
+
 
 
     return (
@@ -218,8 +221,8 @@ export default function print({navigation,route}) {
             style={styles.container}
             originWhitelist={['*']}
             source={{ html: html }} /><View style={styles.container}>
-                
-               
+
+
                 <Button title='Print' style={styles.button} onPress={print} />
                 <View style={styles.spacer} />
 
@@ -232,16 +235,15 @@ export default function print({navigation,route}) {
                     </>}
             </View></>
     );
-  }
-  
-  const styles = StyleSheet.create({
+}
+
+const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      marginTop: Constants.statusBarHeight,
+        flex: 1,
+        marginTop: Constants.statusBarHeight,
     },
-    button:{
-        borderColor:"white",
-        borderWidth:5,
+    button: {
+        borderColor: "white",
+        borderWidth: 5,
     }
-  });
-  
+});

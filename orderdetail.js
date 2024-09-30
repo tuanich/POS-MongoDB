@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { useCallback, useEffect, useState, useRef } from 'react';
 import React, { Component } from 'react';
 import Order from './order';
+import mapping from "./mapping.json";
 import { pay, convertNumber, updateStatus, getItems, updateTable, clearTable, getTable, generateInvoiceNumber } from './source/api';
 import { useDispatch, useSelector } from 'react-redux';
 import orderSlice from './source/redux/orderSlice';
@@ -20,6 +21,7 @@ import TabListMenu from './tablistMenu'
 
 import 'localstorage-polyfill';
 
+
 // TablistMenu
 
 
@@ -27,6 +29,7 @@ import 'localstorage-polyfill';
 const SALES_STORAGE = "SALES_KEY";
 
 export default function Orderdetail({ navigation, route }) {
+
   const flashMessage = useRef();
   const dispath = useDispatch();
 
@@ -248,7 +251,7 @@ export default function Orderdetail({ navigation, route }) {
 
   //--------Paymnet---
   const paymentAlert = () =>
-    Alert.alert(type, 'Sẽ được thanh toán', [
+    Alert.alert(mapping.ban[type], 'Sẽ được thanh toán', [
       {
         text: 'Cancel',
         //   onPress: () => console.log('Cancel Pressed'),
