@@ -78,8 +78,8 @@ export default function Orderdetail({ navigation, route }) {
      const storagedSales = localStorage.getItem(SALES_STORAGE);
      if (storagedSales)
       { const _storagedSales =storagedSales.replace(/\'/g, '\"');
-       
-         const data= JSON.parse(_storagedSales);
+          
+        const data= JSON.parse(_storagedSales);
         setSales(data);
     } 
     

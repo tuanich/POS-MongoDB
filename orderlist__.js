@@ -15,32 +15,97 @@ import { COLORS, FONTS, SIZES, icons, images } from './source/constants';
 import { faClock, faUsd } from '@fortawesome/free-solid-svg-icons';
 
 
+export function Headertable({navigation,route}) {
+  console.log(navigation.navigate.n);
+  const [tab,setTab] =useState(1);
+  
+ 
+  const back = useCallback(()=>{
+  
+  clearInterval(intervalID);
+  navigation.navigate("Home",
+                        {post: route.params.post });
+},[])
+
+  return (
+     
+      <View
+          style={{
+              flexDirection: 'row',
+              height: 80,
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              //    paddingHorizontal: SIZES.padding,
+              backgroundColor: '#79B45D',
+          }}
+      >
+          <TouchableOpacity
+              style={{ justifyContent: 'center', width: 50, padding: 10 }}
+              onPress={() => back()}
+          >
+              <Image
+                  source={icons.back_arrow}
+                  style={{
+                      width: 25,
+                      height: 25,
+                      tintColor: COLORS.white
+                  }} />
+          </TouchableOpacity>
+
+          <View style={styles.containerTab}>
+              <View style={styles.listTab}>
+                  <TouchableOpacity style={[styles.btnTab, tab === 1 && styles.btnTabActive]} 
+                  onPress={() => {
+                    setTab(1); 
+                    navigation.navigate('Orderlist', { params: { tabClick: 1 }}); }
+                          }>
+                      <Text style={[styles.textTab, tab === 1 && styles.textActive]}>Bàn</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.btnTab, tab === 2 && styles.btnTabActive]} 
+                  onPress={() =>{
+                     setTab(2) ;
+                     navigation.navigate('Orderlist', { params: { tabClick: 2 }}); }
+                          }>
+                      <Text style={[styles.textTab, tab === 2 && styles.textActive]}>Mang về</Text>
+                  </TouchableOpacity>
+              </View>
+          </View>
+      </View>
+      
+  );
+}
+
 
 let intervalID;
+
+
+
+
+
 function Orderlist({ navigation,route}) {
+  
   const [refreshing, setRefreshing] = useState(false);
   const dispath =useDispatch();
-  const [tab,setTab] =useState(1); 
+  const [tab,setTab] =useState(route.params?.tabClick); 
   const [list,setList]= useState([]);
   const [loading, setLoading]=useState(false);
- 
-  const orderLists=useSelector(orderlistSelector);
-
- 
- 
   const statusList =useSelector(statuslistSelector);
 
+ // console.log(route.params);
 
-
-  const [status, setStatus] = useState([]);
   
   
-  useEffect(()=>{
-    if (tab==1)
-    setList(statusList.filter(item=>item[0] < 200));
-    else
-    setList(statusList.filter(item=>item[0] >= 200))
-    },[statusList])
+    useEffect(()=>{
+      
+      if (tab==1)
+      setList(statusList.filter(item=>item[0] < 200));
+      else
+      setList(statusList.filter(item=>item[0] >= 200))
+      },[tab,statusList])
+      
+ 
+ 
+ 
 
  
   useEffect(()=>{
@@ -49,7 +114,9 @@ function Orderlist({ navigation,route}) {
 
     
   },[route.params?.p])
+  
 
+ 
 
 
   const reloadTable = ()=>{
@@ -76,26 +143,6 @@ function Orderlist({ navigation,route}) {
         dispath(fetchOrder(table));
       }
 
-
-//   useEffect(() => {
-//     if (route.params?.p) {
-//       // Post updated, do something with `route.params.post`
-//       // For example, send the post to the server
-//     //   const storagedItem = localStorage.getItem(STATUS_STORAGE);
-//     // if (storagedItem)
-//     // {setStatus(JSON.parse(storagedItem));}
-//      // console.log(route.params?.post)
-//      // addPayment();
-//     // dispath(addStatus())
-//  //reloadTable();
-//    // setTab(1);
-//     }
-//   }, [route.params?.p]);
-
-  // useEffect(() => {
-  //   localStorage.setItem(STATUS_STORAGE, JSON.stringify(status));
-    
-  // }, [status]);
   
   
   const onRefresh = useCallback(() => {
@@ -109,6 +156,7 @@ function Orderlist({ navigation,route}) {
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
   
+  /*
   const pressTab =useCallback((i)=>
 {
   setTab(i);
@@ -122,8 +170,23 @@ function Orderlist({ navigation,route}) {
   
   setList(d);
 },[tab,statusList]);  
+*/
+/*
+useEffect(()=>
+  {
+    setTab(tab);
+    let d=[];
+    if (tab==1){
+      d = statusList.filter(item=>item[0] < 200);
+    }
+    else{
+      d = statusList.filter(item=>item[0]>=200);
+    }
+    
+    setList(d);
+  },[tab,statusList]);  
 
-
+*/
 const back = useCallback(()=>{
   
   clearInterval(intervalID);
@@ -183,50 +246,13 @@ function load(){
   }
 }
 
-function renderNavBar() {
-  return (
-      <View
-          style={{
-              flexDirection: 'row',
-           //   height: 80,
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-          //    paddingHorizontal: SIZES.padding,
-              backgroundColor: '#79B45D',
-          }}
-      >
-          <TouchableOpacity
-              style={{ justifyContent: 'center', width: 50, padding:10 }}
-              onPress={() => back()}
-          >
-              <Image
-                  source={icons.back_arrow}
-                  style={{
-                      width: 25,
-                      height: 25,
-                      tintColor: COLORS.white
-                  }}
-              />
-          </TouchableOpacity>
-            
-    <View style={styles.containerTab}>
-      <View style={styles.listTab}>
-        <TouchableOpacity style={[styles.btnTab,tab===1 && styles.btnTabActive]} onPress={()=>pressTab(1)}>
-        <Text style={[styles.textTab,tab===1 && styles.textActive]}>Bàn</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.btnTab,tab===2 && styles.btnTabActive]} onPress={()=>pressTab(2)}>
-        <Text style={[styles.textTab,tab===2 && styles.textActive]}>Mang về</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-    </View>
-  )
-}
+
+
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
     {/* Nav bar section */}
-    {renderNavBar()}
+    {/*renderNavBar()*/}
 
     <ScrollView refreshControl={
       <RefreshControl
@@ -357,11 +383,11 @@ listTab:{
  },
  btnTab:{
   width:Dimensions.get('window').width / 3,
-  borderTopLeftRadius:13,
-  borderTopRightRadius:13,
- borderRadius:13,
+ //borderTopLeftRadius:1,
+  //borderTopRightRadius:13,
+ borderRadius:18,
   flexDirection:'row',
-  borderWidth:0.5,
+ // borderWidth:0.4,
   borderColor:'white',
   padding:10,
   justifyContent:'center',
@@ -375,6 +401,7 @@ listTab:{
  btnTabActive:{
  // backgroundColor:"#EB8385",
   backgroundColor:'#5E8D48',
+ 
  },
  textActive:{
   color: COLORS.white, ...FONTS.body3

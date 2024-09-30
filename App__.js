@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useEffect, useState,useCallback } from 'react';
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './homescreen';
 import Order from './orderlist';
+import Headertable from './orderlist';
 import Orderd from './orderdetail';
 import Printer from './print';
 import Paymentli from './paymentList';
@@ -13,12 +13,12 @@ import ReportS from './source/report/report';
 import Setting from './setting';
 import store from './source/redux/store';
 import { Provider } from 'react-redux';
-import * as SplashScreen from 'expo-splash-screen';
 //import AppLoading from 'expo-app-loading';
+import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 
 
-//SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync();
 
 
 
@@ -35,7 +35,7 @@ function Orderlist({ navigation,route }) {
   return (
     
     
-   <Order navigation={navigation} route={route}  />
+   <Order navigation={navigation} route={route} />
     
   );
 }
@@ -114,15 +114,13 @@ function App() {
     if (fontsLoaded) {
   //    console.log("fontsLoaded-hide");
       await SplashScreen.hideAsync();
-    //    <AppLoading />;
     }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-  //  console.log("!fontsLoaded");
+ //   console.log("!fontsLoaded");
     return null;
   }
-
 
   
    
@@ -130,7 +128,7 @@ function App() {
     
     <Provider store={store}>
     
-    <NavigationContainer  onReady={onLayoutRootView}>
+    <NavigationContainer onReady={onLayoutRootView} >
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} 
         initialParams={{ post: false }}
@@ -157,9 +155,11 @@ function App() {
         //     fontWeight: 'bold',
         //   },
         // }} 
-        Params={{ post: false }}
+        initialParams={{ post: false,tabClick: 1 }}
+        
         options={{
-            headerShown: false,
+          header: ({navigation,route})=>(<Headertable navigation={navigation} route={route} />),
+       //     headerShown: false,
      //     headerLeft: ()=>false,
       //    headerBackVisible:false,
       }}
@@ -181,7 +181,8 @@ function App() {
         //   },
         // }} 
         options={{
-          headerShown: false,}}
+     //     headerShown: false,
+        }}
          /> 
          <Stack.Screen 
          name="Printer" 

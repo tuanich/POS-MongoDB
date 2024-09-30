@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Trang POS V4.3.9",
+    "name": "Trang POS",
     "slug": "banhcanhghetrang",
-    "version": "1.1.2",
+    "version": "1.1.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#79B45D"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,11 +22,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#FFFFFF"
+       
       },
       "package": "banhcanhghtrang.vn",
       "versionCode": 1
+   
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -41,6 +41,7 @@
       }
     },
     "owner": "tuanich"
-  },
-  "url": "https://script.google.com/macros/s/AKfycbzYJy2ns0PM5LYRvVHLg-UOV8uhjYwd9hQHACRBToxckAxrf95Es6TpkDB_frQvu03tGQ/exec"
+   
+  }
 }
+

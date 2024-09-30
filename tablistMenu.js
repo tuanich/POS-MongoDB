@@ -113,7 +113,7 @@ export default function TabListMenu({itemList,addOrder})
 const styles = StyleSheet.create({
  
   menu:{
-    flex: 1.5,
+    flex: 1.4,
  //   flexDirection:'row',
    // backgroundColor: 'white',
   },
@@ -155,26 +155,29 @@ const styles = StyleSheet.create({
   },
   listTab:{
    flexDirection:'row',
-   alignSelf:'flex-end',
-   marginBottom:1.2,
+  // alignSelf:'flex-end',
+  // marginBottom:1.2,
    },
    btnTab:{
     width:Dimensions.get('window').width / 3,
-   borderTopLeftRadius:13,
-   borderTopRightRadius:13,
-   borderRadius:13,
+ //  borderTopLeftRadius:13,
+ //  borderTopRightRadius:13,
+   borderRadius:18,
    borderColor:'white',
    
     flexDirection:'row',
     borderWidth:0.7,
-    padding:10,
+    padding:8,
+    
+  
     justifyContent:'center',
    // backgroundColor:'#EBEBEB',
     backgroundColor:'white',
-    alignItems:'flex-end'
+  //  alignItems:'flex-end'
    },
    textTab:{
-    color: COLORS.primary, ...FONTS.body3
+    color: COLORS.primary, ...FONTS.body3,
+   
    },
    btnTabActive:{
    // backgroundColor:"#EB8385",
@@ -183,13 +186,9 @@ const styles = StyleSheet.create({
     
    },
    textActive:{
-    color: COLORS.white, ...FONTS.body3
+    color: COLORS.white, ...FONTS.body3,
+   
    },
-   horizontal: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
-    
-  }
+ 
   
 });

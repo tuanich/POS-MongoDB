@@ -20,7 +20,7 @@ export const pay =(order,type,sum,invoice)=>{
   var da = new Date(order[0].timeStamp);;
   // d = da.toLocaleString('en-US',options);
   d= format(da,'MM/dd/yyyy, HH:mm:ss');
-   console.log(d);
+   
 }
  else{
 //  d = date.toLocaleString('en-US', options);
@@ -65,7 +65,7 @@ export const pay =(order,type,sum,invoice)=>{
        } catch(error) {
      // enter your logic for when there is an error (ex. error toast)
 
-          console.log(error)
+          console.log("addSalse loi:",error)
          } 
     
 };
@@ -123,7 +123,7 @@ const postTable = async(dataTable,table)=>{
      } catch(error) {
    // enter your logic for when there is an error (ex. error toast)
 
-        console.log("loi:",error)
+        console.log("addTable loi:",error)
        } 
   
 };
@@ -138,9 +138,13 @@ export const getPayment = async()=>{
      let R3;
     
        if (typeof r1!='undefined')
-       { //[, ...R1] = r1.map((report) => report);
-      R1= r1;
-      }
+       {
+        [, ...R1] = r1.map((report) => {report[0]=checkDate(report[0]); return report })   
+        
+
+    //   R1= r1;
+      
+       }
        else { [, ...R1] =[];}
        if (typeof r2!='undefined')
        {//[, ...R2] = r2.map((report) => report);
@@ -203,7 +207,7 @@ export const getInvoice = async()=>{
      } catch(error) {
    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
+        console.log("getInvoice loi:",error)
        } 
   
 };
@@ -283,7 +287,7 @@ export const getItems = async () => {
  
     return Data;
   } catch {
-    console.log("Error");
+    console.log("getItem loi :",Error);
   }
 };
 
@@ -330,19 +334,19 @@ export const getReport67 = async(m,y,o)=>{
 
 export const updateStatus = async(index,status,sum,ti)=>{
 
-  let data ={};
+ // let data ={};
   try {
      
      let response = await fetch(`${url}?action=updateStatus&index=${index}&status=${status}&sumtotal=${sum}&timestamp=${ti}`);
      let data = await response.json();
-     //console.log(data);
+    
  //    return data;
     // enter you logic when the fetch is successful
      //  console.log(res);
      } catch(error) {
    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
+        console.log("Update status loi:",error)
        } 
 };
 
@@ -394,7 +398,7 @@ export const checkStatus = async(sku)=>{
      } catch(error) {
    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
+        console.log("checkstaus loi:",error)
        } 
   
 };
@@ -414,19 +418,30 @@ export const clearTable = async(table)=>{
      
      let response = await fetch(`${url}?action=clearTable&table=${table}`);
      let data = await response.json();
+    
       return data;
     // enter you logic when the fetch is successful
      //  console.log(res);
      } catch(error) {
    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
+        console.log("clear table:",error);
        } 
   
 };
+
 export const convertNumber = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
+
+export const checkDate =(d)=>{
+  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(d)) {
+    return d;
+  }
+  d = new Date(d);
+  return format(d,'MM/dd/yyyy, HH:mm:ss');
+
+};
 
 
 

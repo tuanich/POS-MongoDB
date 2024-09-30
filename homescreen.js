@@ -4,9 +4,6 @@ import {getPayment,getSales,getInvoice,getItems,getStatus,getTable} from './sour
 import { useDispatch,useSelector } from 'react-redux';
 //import { addInvoiceAction, addItemAction,addReportPayment,addReportSales,addStatus,table2Order,addReport8} from './source/redux/action';
 
-
-
-
 import {itemlistSelector,orderlistSelector,statuslistSelector} from './source/redux/selector';
 import {useEffect,useCallback,useState} from 'react';
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants/';
