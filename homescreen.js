@@ -18,7 +18,7 @@ import salesSlice from './source/redux/salesSlice';
 import paymentSlice from './source/redux/paymentSlice';
 import report8Slice from './source/redux/report8Slice';
 
-import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const ITEM_STORAGE = "ITEM_KEY";
 const STATUS_STORAGE = "STATUS_KEY";
@@ -128,14 +128,16 @@ function HomeScreen({ navigation, route }) {
     Promise.all(promises)
       .then((data) => {
         if (data.length == 0) {
-          flashMessage.current.showMessage({
+          setRefreshing(false);
+          showMessage({
             message: "Không có dữ liệu",
             description: "Load dữ liệu",
             type: "info",
 
           })
         } else {
-          flashMessage.current.showMessage({
+          setRefreshing(false);
+          showMessage({
             message: "Dữ liệu load thành công",
             description: "Load dữ liệu",
             type: "success",
@@ -145,7 +147,8 @@ function HomeScreen({ navigation, route }) {
         }
       })
       .catch((error) => {
-        flashMessage.current.showMessage({
+        setRefreshing(false);
+        showMessage({
           message: error,
           description: "Load dữ liệu",
           type: "danger",
@@ -252,7 +255,7 @@ function HomeScreen({ navigation, route }) {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    wait(4000).then(() => setRefreshing(false));
+    wait(25000).then(() => setRefreshing(false));
   }, []);
 
   const wait = (timeout) => {
@@ -307,7 +310,7 @@ function HomeScreen({ navigation, route }) {
           </TouchableOpacity>
 
         </View>
-        <FlashMessage ref={flashMessage} />
+
       </ScrollView>
     );
   }

@@ -96,7 +96,7 @@ function Tablelist({ navigation, route }) {
         let d = await data.json();
         let b = {};
         b[item[1]] = table2Order(d.table);
-        // console.log(b);
+        //console.log(b);
         dispath(OrderSlice.actions.table2Order((b)));
 
         return b;
@@ -106,12 +106,14 @@ function Tablelist({ navigation, route }) {
     Promise.all(promises)
       .then((data) => {
         if (data.length == 0) {
+          setRefreshing(false);
           flashMessage.current.showMessage({
             message: "Không có dữ liệu",
             description: "Load dữ liệu",
             type: "info",
           })
         } else {
+          setRefreshing(false);
           flashMessage.current.showMessage({
             message: "Dữ liệu load thành công",
             description: "Load dữ liệu",
@@ -121,6 +123,7 @@ function Tablelist({ navigation, route }) {
         }
       })
       .catch((error) => {
+        setRefreshing(false);
         flashMessage.current.showMessage({
           message: error,
           description: "Load dữ liệu",
@@ -166,7 +169,7 @@ function Tablelist({ navigation, route }) {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    wait(100).then(() => setRefreshing(false));
+    wait(15000).then(() => setRefreshing(false));
   }, []);
 
   const wait = (timeout) => {

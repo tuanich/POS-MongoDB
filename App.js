@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-
-import { NavigationContainer } from '@react-navigation/native';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './homescreen';
 import Tablelist from './tableList';
@@ -11,7 +12,7 @@ import Paymentli from './paymentList';
 import ReportM from './source/menuReport';
 import ReportS from './source/report/report';
 import Setting from './setting';
-
+import FlashMessage from "react-native-flash-message";
 import ItemDetail from './itemDetail';
 import store from './source/redux/store';
 import { Provider } from 'react-redux';
@@ -34,10 +35,11 @@ function HomeScreen({ navigation, route }) {
   return (
 
 
+    <View style={{ flex: 1 }}>
 
-
-    <Home navigation={navigation} route={route} />
-
+      <Home navigation={navigation} route={route} />
+      <FlashMessage position='top' />
+    </View>
 
   );
 }
@@ -121,6 +123,7 @@ function _ItemDetail({ navigation, route }) {
 }
 
 function _ItemList({ navigation, route }) {
+  const { goBack } = useNavigation();
   return (
 
 
@@ -149,19 +152,33 @@ function _ItemList({ navigation, route }) {
 
 
             }
-            return <Materialicons name={iconName} size={size} color={color} />;
+            return <Materialicons name={iconName} size={30} color={color} />;
           }
 
           // You can return any component that you like here!
 
         },
         tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#222222',
+        },
+        headerShown: 'false',
+        headerLeft: () => < BackButton onPress={goBack} />,
+        headerStyle: {
+          backgroundColor: '#79B45D',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+
+        },
+
       })}
     >
-      <Tab.Screen name="Foods" component={_Foods} initialParams={{ tab: 1 }} options={{ headerShown: false }} />
-      <Tab.Screen name="Drinks" component={_Foods} initialParams={{ tab: 2 }} options={{ headerShown: false }} />
-      <Tab.Screen name="Others" component={_Foods} initialParams={{ tab: 3 }} options={{ headerShown: false }} />
+      <Tab.Screen name="Foods" component={_Foods} initialParams={{ tab: 1 }} options={{ title: "Foods menu" }} />
+      <Tab.Screen name="Drinks" component={_Foods} initialParams={{ tab: 2 }} options={{ title: "Drinks menu" }} />
+      <Tab.Screen name="Others" component={_Foods} initialParams={{ tab: 3 }} options={{ title: "Others menu" }} />
     </Tab.Navigator>
 
 
@@ -171,6 +188,11 @@ function _ItemList({ navigation, route }) {
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const BackButton = ({ onPress }) => <TouchableOpacity style={{ alignItems: "center", flexDirection: "row", justifyContent: "center" }} onPress={onPress}>
+  <Ionicons name="chevron-back" size={26} color="white" style={{ left: 4 }} />
+  <Text onPress={onPress}></Text>
+</TouchableOpacity>
 
 function App() {
 
@@ -315,7 +337,8 @@ function App() {
             name="ItemList"
             component={_ItemList}
             options={{
-              title: 'Quản lý Menu',
+              headerShown: false,
+              //title: 'Quản lý Menu',
               // headerLeft: ()=>false,
 
               headerStyle: {
