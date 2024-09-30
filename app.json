@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trang POS",
     "slug": "banhcanhghetrang",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -21,12 +21,9 @@
       "bundleIdentifier": "banhcanhghtrang.vn"
     },
     "android": {
-      "adaptiveIcon": {
-       
-      },
+      "adaptiveIcon": {},
       "package": "banhcanhghtrang.vn",
       "versionCode": 1
-   
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -41,7 +38,5 @@
       }
     },
     "owner": "tuanich"
-   
   }
 }
-

@@ -48,15 +48,10 @@ const rootReducer = (state=initState, action)=>{
                     action.payload
                 
         }
-
-        case 'ordList/addOrder':
-            return {
-                    ...state,
-                    orderList:{
-                      //  ...state.orderList,
-                        ...action.payload
-                    }
-            }
+        case 'itemlist/delItem' :
+            return { ...state, items: state.items.filter(i => i.id !== action.payload.id) }
+       
+        
 
         case 'paymentlist/addpayment':
             return {

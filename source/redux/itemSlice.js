@@ -9,6 +9,10 @@ export default createSlice({
     addItem: (state,action)=>{
      state.data=action.payload ; 
     }},
+    delItem: (state,action)=>{
+      delete state.data[action.payload];    
+      },
+    
     
     extraReducers: (builder) =>{
         builder

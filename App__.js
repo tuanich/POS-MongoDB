@@ -3,8 +3,8 @@ import { useEffect, useState,useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './homescreen';
-import Order from './orderlist';
-import Headertable from './orderlist';
+import Order from './tableList';
+import Headertable from './tableList';
 import Orderd from './orderdetail';
 import Printer from './print';
 import Paymentli from './paymentList';
@@ -31,7 +31,7 @@ function HomeScreen({ navigation,route }) {
   );
 }
 
-function Orderlist({ navigation,route }) {
+function tablelist({ navigation,route }) {
   return (
     
     
@@ -143,7 +143,7 @@ function App() {
           },
           
         }} />
-        <Stack.Screen name="Order" component={Orderlist} 
+        <Stack.Screen name="tablelist" component={tablelist} 
        
         // options={{
         //   title: 'Chọn bàn',

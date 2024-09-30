@@ -1,13 +1,16 @@
 import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, RefreshControl, Dimensions, Image, ActivityIndicator } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { generateInvoiceNumber } from './source/api';
 import { useDispatch, useSelector } from 'react-redux';
+import { table2Order, getStatus } from './source/api';
+import { url } from "@env";
 //import {addStatus,table2Order,addOrderAction} from './source/redux/action';
 //import statusSlice, { fetchCheckStatus } from './source/redux/statusSlice';
-import { fetchStatus, fetchCheckStatus } from './source/redux/statusSlice';
-import orderSlice, { fetchOrder } from './source/redux/orderSlice';
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
+import statusSlice, { fetchStatus, fetchCheckStatus } from './source/redux/statusSlice';
+import OrderSlice, { fetchOrder } from './source/redux/orderSlice';
 import invoiceSlice from './source/redux/invoiceSlice';
 import { convertNumber } from './source/api';
 import { orderlistSelector, statuslistSelector } from './source/redux/selector';
@@ -15,86 +18,26 @@ import { COLORS, FONTS, SIZES, icons, images } from './source/constants';
 import { faClock, faUsd } from '@fortawesome/free-solid-svg-icons';
 
 
-export function Headertable({ navigation, route }) {
-  //console.log(navigation.navigate.n);
-  const [tab, setTab] = useState(1);
-
-
-  const back = useCallback(() => {
-
-    clearInterval(intervalID);
-    navigation.navigate("Home",
-      { post: route.params.post });
-  }, [])
-
-  return (
-
-    <View
-      style={{
-        flexDirection: 'row',
-        height: 80,
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        //    paddingHorizontal: SIZES.padding,
-        backgroundColor: '#79B45D',
-      }}
-    >
-      <TouchableOpacity
-        style={{ justifyContent: 'center', width: 50, padding: 10 }}
-        onPress={() => back()}
-      >
-        <Image
-          source={icons.back_arrow}
-          style={{
-            width: 25,
-            height: 25,
-            tintColor: COLORS.white
-          }} />
-      </TouchableOpacity>
-
-      <View style={styles.containerTab}>
-        <View style={styles.listTab}>
-          <TouchableOpacity style={[styles.btnTab, tab === 1 && styles.btnTabActive]}
-            onPress={() => {
-              setTab(1);
-              navigation.navigate('Orderlist', { params: { tabClick: 1 } });
-            }
-            }>
-            <Text style={[styles.textTab, tab === 1 && styles.textActive]}>Bàn</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btnTab, tab === 2 && styles.btnTabActive]}
-            onPress={() => {
-              setTab(2);
-              navigation.navigate('Orderlist', { params: { tabClick: 2 } });
-            }
-            }>
-            <Text style={[styles.textTab, tab === 2 && styles.textActive]}>Mang về</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-
-  );
-}
-
 
 let intervalID;
-
-
-
-
-
-function Orderlist({ navigation, route }) {
-
+function Tablelist({ navigation, route }) {
+  const flashMessage = useRef();
   const [refreshing, setRefreshing] = useState(false);
   const dispath = useDispatch();
-  const [tab, setTab] = useState(route.params?.tabClick);
+  const [tab, setTab] = useState(1);
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const orderLists = useSelector(orderlistSelector);
+  //console.log("orderlist0:", orderLists);
+
+
+
   const statusList = useSelector(statuslistSelector);
 
-  // console.log(route.params);
 
+
+  const [status, setStatus] = useState([]);
 
 
   useEffect(() => {
@@ -103,40 +46,94 @@ function Orderlist({ navigation, route }) {
       setList(statusList.filter(item => item[0] < 200));
     else
       setList(statusList.filter(item => item[0] >= 200))
-  }, [tab, statusList])
-
-
-
-
+  }, [statusList, route.params?.p])
 
 
   useEffect(() => {
 
-    reloadTable();
+    //reloadTable();
 
 
   }, [route.params?.p])
 
 
 
-
-
   const reloadTable = () => {
 
-    intervalID = setInterval(() => {
-      dispath(fetchStatus());
-      //  reloadOrderTable();
-    }, 5000);
-    return () => { clearInterval(intervalID) }
+
+    let abortController = new AbortController();
+    let aborted = abortController.signal.aborted; // true || false
+    let data = async () => {
+      const d = (await getStatus());
+      aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
+      if (aborted === false) {
+
+
+        dispath(statusSlice.actions.addStatus(d));
+        // console.log(d);
+        reloadOrderTable(d);
+
+      }
+    }
+    data();
+    return () => {
+      abortController.abort();
+    };
+    //  reloadOrderTable();
+
+
   };
 
-  const reloadOrderTable = () => {
+  const reloadOrderTable = (d) => {
 
-    statusList.map(item => {
-      if (item[2] == 1) {
-        TabletoOrder(item[1]);
-      }
+    d = d.filter(item => item[2] == 1);
+
+    let promises = [];
+    d.forEach(item => {
+
+      promises.push(fetch(`${url}?action=getTables&table=${item[1]}`).then(async (data) => {
+        // console.log(item[1]);
+        let d = await data.json();
+        let b = {};
+        b[item[1]] = table2Order(d.table);
+        // console.log(b);
+        dispath(OrderSlice.actions.table2Order((b)));
+
+        return b;
+      }));
     });
+
+    Promise.all(promises)
+      .then((data) => {
+        if (data.length == 0) {
+          flashMessage.current.showMessage({
+            message: "Không có dữ liệu",
+            description: "Load dữ liệu",
+            type: "info",
+          })
+        } else {
+          flashMessage.current.showMessage({
+            message: "Dữ liệu load thành công",
+            description: "Load dữ liệu",
+            type: "success",
+            backgroundColor: "#517fa4",
+          })
+        }
+      })
+      .catch((error) => {
+        flashMessage.current.showMessage({
+          message: error,
+          description: "Load dữ liệu",
+          type: "danger",
+
+        })
+      });
+
+    /* statusList.map(item => {
+       if (item[2] == 1) {
+         TabletoOrder(item[1]);
+       }
+     });*/
 
   };
 
@@ -146,49 +143,52 @@ function Orderlist({ navigation, route }) {
   }
 
 
+  //   useEffect(() => {
+  //     if (route.params?.p) {
+  //       // Post updated, do something with `route.params.post`
+  //       // For example, send the post to the server
+  //     //   const storagedItem = localStorage.getItem(STATUS_STORAGE);
+  //     // if (storagedItem)
+  //     // {setStatus(JSON.parse(storagedItem));}
+  //      // console.log(route.params?.post)
+  //      // addPayment();
+  //     // dispath(addStatus())
+  //  //reloadTable();
+  //    // setTab(1);
+  //     }
+  //   }, [route.params?.p]);
+
+  // useEffect(() => {
+  //   localStorage.setItem(STATUS_STORAGE, JSON.stringify(status));
+
+  // }, [status]);
+
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    wait(3000).then(() => setRefreshing(false));
+    wait(100).then(() => setRefreshing(false));
   }, []);
 
   const wait = (timeout) => {
     reloadTable();
-    reloadOrderTable();
+
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
-  /*
-  const pressTab =useCallback((i)=>
-{
-  setTab(i);
-  let d=[];
-  if (i==1){
-    d = statusList.filter(item=>item[0] < 200);
-  }
-  else{
-    d = statusList.filter(item=>item[0]>=200);
-  }
-  
-  setList(d);
-},[tab,statusList]);  
-*/
-  /*
-  useEffect(()=>
-    {
-      setTab(tab);
-      let d=[];
-      if (tab==1){
-        d = statusList.filter(item=>item[0] < 200);
-      }
-      else{
-        d = statusList.filter(item=>item[0]>=200);
-      }
-      
-      setList(d);
-    },[tab,statusList]);  
-  
-  */
+  const pressTab = useCallback((i) => {
+    setTab(i);
+    let d = [];
+    if (i == 1) {
+      d = statusList.filter(item => item[0] < 200);
+    }
+    else {
+      d = statusList.filter(item => item[0] >= 200);
+    }
+
+    setList(d);
+  }, [tab, statusList]);
+
+
   const back = useCallback(() => {
 
     clearInterval(intervalID);
@@ -197,16 +197,18 @@ function Orderlist({ navigation, route }) {
   }, [])
 
   const clickTable = useCallback((item) => {
+    // console.log("orderlist1:", orderLists);
     if (item[2] == 0) {
       const invoice = generateInvoiceNumber();
 
       dispath(invoiceSlice.actions.addinvoice(invoice));
-      dispath(orderSlice.actions.deleteOrder(item[1]));
+      dispath(OrderSlice.actions.deleteOrder(item[1]));
       clearInterval(intervalID);
       navigation.navigate('Orderdetail', { type: { item } });
 
     }
     else {
+      /* lay data order trong table tu database
       const p = new Promise(resolve => {
         setLoading(true);
         resolve(dispath(fetchOrder(item[1])));
@@ -222,7 +224,11 @@ function Orderlist({ navigation, route }) {
         }
 
       }
-      )
+      )*/
+
+      navigation.navigate('Orderdetail', { type: { item } });
+
+
     }
 
 
@@ -246,13 +252,50 @@ function Orderlist({ navigation, route }) {
     }
   }
 
+  function renderNavBar() {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          //  height: 80,
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          //    paddingHorizontal: SIZES.padding,
+          backgroundColor: '#79B45D',
+        }}
+      >
+        <TouchableOpacity
+          style={{ justifyContent: 'center', width: 50, padding: 10 }}
+          onPress={() => back()}
+        >
+          <Image
+            source={icons.back_arrow}
+            style={{
+              width: 25,
+              height: 25,
+              tintColor: COLORS.white
+            }}
+          />
+        </TouchableOpacity>
 
-
+        <View style={styles.containerTab}>
+          <View style={styles.listTab}>
+            <TouchableOpacity style={[styles.btnTab, tab === 1 && styles.btnTabActive]} onPress={() => pressTab(1)}>
+              <Text style={[styles.textTab, tab === 1 && styles.textActive]}>Bàn</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btnTab, tab === 2 && styles.btnTabActive]} onPress={() => pressTab(2)}>
+              <Text style={[styles.textTab, tab === 2 && styles.textActive]}>Mang về</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    )
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
+    <View style={{ flex: 1, }}>
       {/* Nav bar section */}
-      {/*renderNavBar()*/}
+      {renderNavBar()}
 
       <ScrollView refreshControl={
         <RefreshControl
@@ -291,12 +334,14 @@ function Orderlist({ navigation, route }) {
           </View>
 
         </View>
+        <FlashMessage ref={flashMessage} />
       </ScrollView>
       {load()}
+
     </View>
   );
 }
-export default Orderlist;
+export default Tablelist;
 
 const styles = StyleSheet.create({
   container: {
@@ -383,11 +428,11 @@ const styles = StyleSheet.create({
   },
   btnTab: {
     width: Dimensions.get('window').width / 3,
-    //borderTopLeftRadius:1,
-    //borderTopRightRadius:13,
-    borderRadius: 18,
+    borderTopLeftRadius: 13,
+    borderTopRightRadius: 13,
+    borderRadius: 13,
     flexDirection: 'row',
-    // borderWidth:0.4,
+    borderWidth: 0.5,
     borderColor: 'white',
     padding: 10,
     justifyContent: 'center',
@@ -401,7 +446,6 @@ const styles = StyleSheet.create({
   btnTabActive: {
     // backgroundColor:"#EB8385",
     backgroundColor: '#5E8D48',
-
   },
   textActive: {
     color: COLORS.white, ...FONTS.body3

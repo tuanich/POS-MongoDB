@@ -1,78 +1,79 @@
 import { format } from "date-fns";
-import {url} from "@env";
+import { url } from "@env";
 
 
 
 //import config from "../app.json";
 //const url = config.url;
 
-export const pay =(order,type,sum,invoice)=>{
+export const pay = (order, type, sum, invoice) => {
 
- //invoice= generateInvoiceNumber();
- var date = new Date();
- 
- var options={hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'numeric',minute:'numeric',second:'numeric'};
- var d;
- 
- if (typeof order[0].timeStamp != 'undefined')
- {
- 
-  var da = new Date(order[0].timeStamp);;
-  // d = da.toLocaleString('en-US',options);
-  d= format(da,'MM/dd/yyyy, HH:mm:ss');
-   
-}
- else{
-//  d = date.toLocaleString('en-US', options);
-  d= format(date,'MM/dd/yyyy, HH:mm:ss');
- 
- } 
- const exportData = addToLine(order,type,d,invoice);
- const currentPayment = [[]];
- currentPayment[0][0] = d;
- currentPayment[0][1] = invoice;
- currentPayment[0][2] = sum;
- currentPayment[0][5] = type;
- const exportPayment={ 
-     order: exportData,
-     payment: currentPayment,
-     day: d
-                        };
- 
- postAsync(exportPayment);
- return(exportPayment);
- };
+  //invoice= generateInvoiceNumber();
+  var date = new Date();
 
- const postAsync = async(data)=>{
-    
-    try {
-       
-       const response = await fetch(url + '?action=addSales', {
-         method: 'POST',
-         mode:'no-cors',
-         cache:'no-cache',
-         headers: {
-           'Accept': 'application/json',
-           'Content-Type': 'application/json'
-           },
-           redirect:'follow',
-           body: JSON.stringify(data)
-         });
-         const res = await response.json();
-      //   console.log("thanh cong:",res);
-      // enter you logic when the fetch is successful
-       //  console.log(res);
-       } catch(error) {
-     // enter your logic for when there is an error (ex. error toast)
+  var options = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+  var d;
 
-          console.log("addSalse loi:",error)
-         } 
-    
+  if (typeof order[0].timeStamp != 'undefined') {
+
+
+    //var da = new Date(order[0].timeStamp);;
+    // d = da.toLocaleString('en-US',options);
+    d = checkDate(order[0].timeStamp)
+
+  }
+  else {
+    //  d = date.toLocaleString('en-US', options);
+
+    d = format(date, 'MM/dd/yyyy, HH:mm:ss');
+
+  }
+  const exportData = addToLine(order, type, d, invoice);
+  const currentPayment = [[]];
+  currentPayment[0][0] = d;
+  currentPayment[0][1] = invoice;
+  currentPayment[0][2] = sum;
+  currentPayment[0][5] = type;
+  const exportPayment = {
+    order: exportData,
+    payment: currentPayment,
+    day: d
+  };
+
+  postAsync(exportPayment);
+  return (exportPayment);
 };
 
-const addToLine =(order,type,d,invoice)=>{
-  
-  let exportData=[];
+const postAsync = async (data) => {
+
+  try {
+
+    const response = await fetch(url + '?action=addSales', {
+      method: 'POST',
+      mode: 'no-cors',
+      cache: 'no-cache',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      redirect: 'follow',
+      body: JSON.stringify(data)
+    });
+    const res = await response.json();
+    //   console.log("thanh cong:",res);
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log("addSalse loi:", error)
+  }
+
+};
+
+const addToLine = (order, type, d, invoice) => {
+
+  let exportData = [];
   order.forEach(orderLine => {
     let currentLine = [];
     currentLine[0] = d;
@@ -85,134 +86,133 @@ const addToLine =(order,type,d,invoice)=>{
     currentLine[7] = type;
 
     exportData.push(currentLine);
-});
-return exportData;
+  });
+  return exportData;
 }
 
-export function updateTable(data,table,d,invoice){
+export function updateTable(data, table, d, invoice) {
 
-const exportData = addToLine(data,table,d,invoice);
-const dataTable ={
-  table: exportData
-  
-}  
-postTable(dataTable,table);
+  const exportData = addToLine(data, table, d, invoice);
+  const dataTable = {
+    table: exportData
+
+  }
+  postTable(dataTable, table);
 }
 
-const postTable = async(dataTable,table)=>{
-  
-  
+const postTable = async (dataTable, table) => {
+
+
   try {
-     
-     const response = await fetch(`${url}?action=addTables&table=${table}`, {
-       method: 'POST',
-       mode:'no-cors',
-       cache:'no-cache',
-       headers: {
-         'Accept': 'application/json',
-         'Content-Type': 'application/json'
-         },
-         redirect:'follow',
-         body: JSON.stringify(dataTable)
-       });
-      
-       const res = await response.json();
+
+    const response = await fetch(`${url}?action=addTables&table=${table}`, {
+      method: 'POST',
+      mode: 'no-cors',
+      cache: 'no-cache',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      redirect: 'follow',
+      body: JSON.stringify(dataTable)
+    });
+
+    const res = await response.json();
     // enter you logic when the fetch is successful
     //   console.log("thanh cong:",res);
-      
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log("addTable loi:",error)
-       } 
-  
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log("addTable loi:", error)
+  }
+
 };
 
-export const getPayment = async()=>{
+export const getPayment = async () => {
   try {
-     
-     let response = await fetch(url + '?action=getPayments');
-     let { r1,r2,r3 } = await response.json();
-     let R1;
-     let R2;
-     let R3;
-    
-       if (typeof r1!='undefined')
-       {
-        [, ...R1] = r1.map((report) => {report[0]=checkDate(report[0]); return report })   
-        
 
-    //   R1= r1;
-      
-       }
-       else { [, ...R1] =[];}
-       if (typeof r2!='undefined')
-       {//[, ...R2] = r2.map((report) => report);
-      R2=r2;}
-       else{
-        [, ...R2] =[];
-       }
-       if (typeof r3!='undefined')
-       {//[, ...R3] = r3.map((report) => report);
-      R3=r3;}
-       else{
-        [, ...R3] =[];
-       }
-       let Data={};
-      
-       Data.R1 = R1;
-       Data.R2 = R2;
-       Data.R3 = R3;
-      
-       return Data;
+    let response = await fetch(url + '?action=getPayments');
+    let { r1, r2, r3 } = await response.json();
+    let R1;
+    let R2;
+    let R3;
+
+    if (typeof r1 != 'undefined') {
+      [, ...R1] = r1.map((report) => { report[0] = checkDate(report[0]); return report })
+
+
+      //   R1= r1;
+
+    }
+    else { [, ...R1] = []; }
+    if (typeof r2 != 'undefined') {//[, ...R2] = r2.map((report) => report);
+      R2 = r2;
+    }
+    else {
+      [, ...R2] = [];
+    }
+    if (typeof r3 != 'undefined') {//[, ...R3] = r3.map((report) => report);
+      R3 = r3;
+    }
+    else {
+      [, ...R3] = [];
+    }
+    let Data = {};
+
+    Data.R1 = R1;
+    Data.R2 = R2;
+    Data.R3 = R3;
+
+    return Data;
     // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
-       } 
-  
+    console.log(error)
+  }
+
 };
 
-export const getSales = async()=>{
+export const getSales = async () => {
   try {
-     
-     let response = await fetch(url + '?action=getSale');
-     let data = await response.json();
-       
-     
-   //  data =groupBy(data,1);
-   //  delete data['invoice'];
-    
-       return data;
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
-       } 
-  
+    let response = await fetch(url + '?action=getSale');
+    let data = await response.json();
+
+
+    //  data =groupBy(data,1);
+    //  delete data['invoice'];
+
+    return data;
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log(error)
+  }
+
 };
 
-export const getInvoice = async()=>{
+export const getInvoice = async () => {
   try {
-     
-     let response = await fetch(url + '?action=getInvoice');
-     let data = await response.json();
-      return data;
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log("getInvoice loi:",error)
-       } 
-  
+    let response = await fetch(url + '?action=getInvoice');
+    let data = await response.json();
+    return data;
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log("getInvoice loi:", error)
+  }
+
 };
 
-export const generateInvoiceNumber = ()=>{
+export const generateInvoiceNumber = () => {
   /*
   const date = new Date();
   const y= date.getFullYear();
@@ -246,200 +246,201 @@ else
   }
   
 }*/
-const date = new Date();
-   
-      let y= date.getFullYear();
-      y = y.toString().substring(-2);
-      const m=(date.getMonth()+1)<10?'0'+(date.getMonth()+1):(date.getMonth()+1);
-      const d=date.getDate()<10?'0'+date.getDate():date.getDate();
-      const today= y.toString()+m.toString()+d.toString();
+  const date = new Date();
 
-      const h=date.getHours();
-      const ms=date.getMinutes();
-      const s=date.getSeconds();
-      const id =h*24+ms*60+s;
-      
-      this.invoiceNumber=today+'-'+id;
-return invoiceNumber;
+  let y = date.getFullYear();
+  y = y.toString().substring(-2);
+  const m = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
+  const d = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+  const today = y.toString() + m.toString() + d.toString();
+
+  const h = date.getHours();
+  const ms = date.getMinutes();
+  const s = date.getSeconds();
+  const id = h * 24 + ms * 60 + s;
+
+  this.invoiceNumber = today + '-' + id;
+  return invoiceNumber;
 }
 
 export const getItems = async () => {
-  const APIKey = 'AIzaSyCtbGcdYMWabSFvzQalE3lsez_QZ-yxqcQ'; 
+  const APIKey = 'AIzaSyCtbGcdYMWabSFvzQalE3lsez_QZ-yxqcQ';
   const SheetID = '1pMHD_IKfWdYAoMFzIHNmwnxvzOn3JOgklL1eGxzL8Ns';
   const SheetName = 'Items';
-  
+
   try {
     let data = await fetch(url + "?action=getItems"
-  //   "https://sheets.googleapis.com/v4/spreadsheets/"+SheetID+"/values/"+SheetName+"?valueRenderOption=FORMATTED_VALUE&key="+APIKey
-//"https://sheets.googleapis.com/v4/spreadsheets/1pMHD_IKfWdYAoMFzIHNmwnxvzOn3JOgklL1eGxzL8Ns/values/Items?valueRenderOption=FORMATTED_VALUE&key=AIzaSyCtbGcdYMWabSFvzQalE3lsez_QZ-yxqcQ"
+      //   "https://sheets.googleapis.com/v4/spreadsheets/"+SheetID+"/values/"+SheetName+"?valueRenderOption=FORMATTED_VALUE&key="+APIKey
+      //"https://sheets.googleapis.com/v4/spreadsheets/1pMHD_IKfWdYAoMFzIHNmwnxvzOn3JOgklL1eGxzL8Ns/values/Items?valueRenderOption=FORMATTED_VALUE&key=AIzaSyCtbGcdYMWabSFvzQalE3lsez_QZ-yxqcQ"
     );
-    let { items,drinks,others } = await data.json();
-   // let { drinks } = await data.json();
-   // let { others } = await data.json();
-    
-   // let [, ...Item] = items.map((item) => item);
-   // let [, ...Drink] = drinks.map((drink) => drink);
-   // let [, ...Other] = others.map((other) => other);
-    let Data={};
+    let { items, drinks, others } = await data.json();
+    // let { drinks } = await data.json();
+    // let { others } = await data.json();
+
+    // let [, ...Item] = items.map((item) => item);
+    // let [, ...Drink] = drinks.map((drink) => drink);
+    // let [, ...Other] = others.map((other) => other);
+    let Data = {};
     Data.Item = items;
     Data.Drink = drinks;
     Data.Other = others;
- 
+
     return Data;
   } catch {
-    console.log("getItem loi :",Error);
+    console.log("getItem loi :", Error);
   }
 };
 
-export const getReport = async()=>{
-  let data ={};
+export const getReport = async () => {
+  let data = {};
   try {
-     
-     let response = await fetch(url + '?action=getReport');
-     let report = await response.json();
-     let response2 = await fetch(url + '?action=getReport2');
-     let report2 = await response2.json();
-    
-     data.R1= report;
-     data.R2=report2;
-     return data;
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
-       } 
+    let response = await fetch(url + '?action=getReport');
+    let report = await response.json();
+    let response2 = await fetch(url + '?action=getReport2');
+    let report2 = await response2.json();
+
+    data.R1 = report;
+    data.R2 = report2;
+    return data;
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log(error)
+  }
 };
 
-export const getReport67 = async(m,y,o)=>{
-  try { 
-     
-     let response = await fetch(`${url}?action=getReport67&m=${m}&y=${y}&o=${o}`);
-     let data = await response.json();
-
-      return data;
-
-
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
-
-        console.log(error)
-       } 
-  
-};
-
-
-export const updateStatus = async(index,status,sum,ti)=>{
-
- // let data ={};
+export const getReport67 = async (m, y, o) => {
   try {
-     
-     let response = await fetch(`${url}?action=updateStatus&index=${index}&status=${status}&sumtotal=${sum}&timestamp=${ti}`);
-     let data = await response.json();
-    
- //    return data;
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log("Update status loi:",error)
-       } 
+    let response = await fetch(`${url}?action=getReport67&m=${m}&y=${y}&o=${o}`);
+    let data = await response.json();
+
+    return data;
+
+
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log(error)
+  }
+
 };
 
-export const getStatus = async()=>{
+
+export const updateStatus = async (index, status, sum, ti) => {
+
+  // let data ={};
   try {
-     
-     let response = await fetch(`${url}?action=getStatus`);
-     let data = await response.json();
-    
-      return data.type;
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
-       } 
-  
+    let response = await fetch(`${url}?action=updateStatus&index=${index}&status=${status}&sumtotal=${sum}&timestamp=${ti}`);
+    let data = await response.json();
+
+    //    return data;
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log("Update status loi:", error)
+  }
 };
 
-export const getTable = async(table)=>{
+export const getStatus = async () => {
   try {
-     
-     let response = await fetch(`${url}?action=getTables&table=${table}`);
-     let data = await response.json();
-      return table2Order(data.table);
 
+    let response = await fetch(`${url}?action=getStatus`);
+    let data = await response.json();
 
+    return data.type;
     // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
 
-        console.log(error)
-       } 
-  
+    console.log(error)
+  }
+
 };
 
-export const checkStatus = async(sku)=>{
+export const getTable = async (table) => {
   try {
-     
-     let response = await fetch(`${url}?action=checkStatus&sku=${sku}`);
-     let data = await response.json();
-     return data;
+
+    let response = await fetch(`${url}?action=getTables&table=${table}`);
+    let data = await response.json();
+    return table2Order(data.table);
 
 
     // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
+    // console.log(data);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
 
-        console.log("checkstaus loi:",error)
-       } 
-  
+    console.log(error)
+  }
+
 };
 
-export const  table2Order=(table)=>{
-  let order=[];
-  table.forEach(item=>{
-    let dataString = {timeStamp:`${item[0]}`,invoice:`${item[1]}`,sku:`${item[2]}`, description: `${item[3]}`, quan: `${item[4]}`, price: `${item[5]}`, type:`${item[7]}`};
+export const checkStatus = async (sku) => {
+  try {
+
+    let response = await fetch(`${url}?action=checkStatus&sku=${sku}`);
+    let data = await response.json();
+    return data;
+
+
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log("checkstaus loi:", error)
+  }
+
+};
+
+export const table2Order = (table) => {
+  // console.log(table);
+  let order = [];
+  table.forEach(item => {
+    let dataString = { timeStamp: `${item[0]}`, invoice: `${item[1]}`, sku: `${item[2]}`, description: `${item[3]}`, quan: `${item[4]}`, price: `${item[5]}`, type: `${item[7]}` };
     order.push(dataString);
   })
   return order;
-  
-} 
 
-export const clearTable = async(table)=>{
+}
+
+export const clearTable = async (table) => {
   try {
-     
-     let response = await fetch(`${url}?action=clearTable&table=${table}`);
-     let data = await response.json();
-    
-      return data;
-    // enter you logic when the fetch is successful
-     //  console.log(res);
-     } catch(error) {
-   // enter your logic for when there is an error (ex. error toast)
 
-        console.log("clear table:",error);
-       } 
-  
+    let response = await fetch(`${url}?action=clearTable&table=${table}`);
+    let data = await response.json();
+
+    return data;
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log("clear table:", error);
+  }
+
 };
 
 export const convertNumber = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-export const checkDate =(d)=>{
+export const checkDate = (d) => {
   if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(d)) {
     return d;
   }
   d = new Date(d);
-  return format(d,'MM/dd/yyyy, HH:mm:ss');
+  return format(d, 'MM/dd/yyyy, HH:mm:ss');
 
 };
 
