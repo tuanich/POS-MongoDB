@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { VictoryPie } from 'victory-native';
 import { convertNumber, getReport67 } from "../api";
+import * as Crypto from 'expo-crypto';
 
 import { Svg } from 'react-native-svg';
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
@@ -341,7 +342,7 @@ export default function report8({ data, name }) {
 
 
             return (
-                <View style={{ padding: SIZES.padding }}>
+                <View style={{ padding: SIZES.padding }} key={name}>
                     <RenderItem data={data} setSelectCategoryByName={setSelectCategoryByName} selectedCategory={selectedCategory} name={name} />
                 </View>
 
@@ -395,7 +396,7 @@ export default function report8({ data, name }) {
         }
 
         return (
-            <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
+            <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }} >
                 {/* Nav bar section */}
 
 

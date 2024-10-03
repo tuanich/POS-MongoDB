@@ -14,7 +14,7 @@ const colorScales = ['#4E8397', '#845EC2', '#2C73D2', '#FF6F91', '#008F7A', '#00
     '#E67300', '#8B0707', '#329262', '#5574A6',
 ];
 import RenderItem from './renderItem';
-
+import * as Crypto from 'expo-crypto';
 export default function report7({ data, name }) {
     const [viewMode, setViewMode] = useState("chart");
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -309,7 +309,7 @@ export default function report7({ data, name }) {
 
 
             return (
-                <View style={{ padding: SIZES.padding }}>
+                <View style={{ padding: SIZES.padding }} key={name}>
                     <RenderItem data={data} setSelectCategoryByName={setSelectCategoryByName} selectedCategory={selectedCategory} name={name} />
                 </View>
 
@@ -320,6 +320,7 @@ export default function report7({ data, name }) {
             let category = { name: name };
             setSelectedCategory(category);
         }, []);
+
         function renderList() {
             return (
                 <View style={styles.main}>
@@ -369,7 +370,7 @@ export default function report7({ data, name }) {
         }
 
         return (
-            <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
+            <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }} >
                 {/* Nav bar section */}
 
 

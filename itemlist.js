@@ -1,14 +1,17 @@
-import { StyleSheet, TouchableOpacity, View, ScrollView, RefreshControl, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, Keyboard } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ScrollView, RefreshControl, Text } from 'react-native';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { itemlistSelector } from './source/redux/selector';
 import ItemSlice from './source/redux/itemSlice';
 import { Icon, SearchBar } from 'react-native-elements';
+import Dialog from "react-native-dialog";
 import DataItem from './dataItem';
 import 'localstorage-polyfill';
-
+import { COLORS, FONTS, SIZES, icons, } from './source/constants';
 
 export default function ({ navigation, route }) {
+  const [visible, setVisible] = useState(false);
+  const [record, setRecord] = useState({});
   const itemList = useSelector(itemlistSelector);
   const dispath = useDispatch();
   const [filter, setFilter] = useState('');
@@ -84,8 +87,29 @@ export default function ({ navigation, route }) {
     navigation.navigate('Item', { params: { type: tab, sku: data[0][0], add: 1 } })
   };
 
-  const delItem = useCallback((index) => {
+  const renderMsgbox = () => {
+    return (
+      <View style={styles.Msgbox}>
 
+        <Dialog.Container visible={visible} contentStyle={{ borderRadius: 20, width: 390 }}>
+          <Dialog.Title><Text style={{ color: 'black' }}>Xóa '</Text><Text style={{ color: 'red' }}>{record.description}</Text><Text>'</Text></Dialog.Title>
+          <Dialog.Description>
+            <Text style={{ color: 'black' }}>Bạn có chắc muốn xóa không ?.</Text>
+          </Dialog.Description>
+          <Dialog.Button label="Hủy" style={{ ...FONTS.body3 }} onPress={() => setVisible(false)} />
+          <Dialog.Button label="Xóa" style={{ ...FONTS.body3, fontWeight: 'bold' }} onPress={() => actionDel(record.index)} />
+        </Dialog.Container>
+      </View>
+    );
+  }
+
+
+  const delItem = (index, description) => {
+    setRecord({ index: index, description: description })
+    setVisible(true);
+  };
+
+  const actionDel = useCallback((index) => {
     const data = datafilter.filter((item, i) => !(i == index));
     setDatafilter(data);
     setItem(data);
@@ -99,10 +123,8 @@ export default function ({ navigation, route }) {
     //  console.log("d2", d);
     localStorage.setItem(ITEM_STORAGE, JSON.stringify(d));
     dispath(ItemSlice.actions.addItem(d));
-
-
-
-  }, [datafilter, IT]);
+    setVisible(false);
+  }, [datafilter, IT])
 
   const search = (text) => {
 
@@ -134,6 +156,7 @@ export default function ({ navigation, route }) {
       <View style={styles.menulist}>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', position: 'relative', alignItems: 'center', width: 415, height: 60, padding: 4 }}>
+          {renderMsgbox()}
           <SearchBar
             placeholder="Type Here..."
             onChangeText={search}
@@ -176,15 +199,24 @@ const styles = StyleSheet.create({
 
   menu: {
     flex: 1,
+
     //   flexDirection:'row',
-    // backgroundColor: 'white',
+    //backgroundColor: COLORS.lightGray2,
   },
   menulist: {
     flex: 1,
     position: 'absolute',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    backgroundColor: COLORS.lightGray2,
 
+  },
+  Msgbox: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    position: 'absolute',
 
   },
 

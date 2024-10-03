@@ -1,11 +1,10 @@
-import React, { useRef, useCallback, useEffect, useState } from "react";
-import {
+import React from "react";
+import * as Crypto from 'expo-crypto';
 
+import {
     View,
     Text,
-
     TouchableOpacity,
-
 } from 'react-native';
 
 import { convertNumber } from "../api";
@@ -58,7 +57,7 @@ export default function RenderItem({ data, selectedCategory, setSelectCategoryBy
                         <Text style={{ color: (selectedCategory && selectedCategory.name == item.name) ? COLORS.white : COLORS.primary, ...FONTS.h4 }}>{item.Count} đơn - {parseInt(item.label) >= 10 ? item.label : '0' + item.label}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ color: (selectedCategory && selectedCategory.name == item.name) ? COLORS.white : COLORS.primary, ...FONTS.h4 }}>{convertNumber(item.y)}</Text>
+                        <Text style={{ color: (selectedCategory && selectedCategory.name == item.name) ? COLORS.white : COLORS.primary, ...FONTS.h4 }}>{convertNumber(item.subTotal)}</Text>
                     </View>
                 </View>
             </TouchableOpacity>

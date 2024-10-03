@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     flex: 10,
 
     flexDirection: 'row',
+    backgroundColor: "#ebebeb",
   },
 
   /* tab vertical

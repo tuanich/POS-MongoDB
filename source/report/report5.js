@@ -5,23 +5,25 @@ import { VictoryChart, VictoryBar, VictoryTheme, VictoryAxis, VictoryLabel, Vict
 import { convertNumber } from '../api';
 import { Svg } from 'react-native-svg';
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
+import * as Crypto from 'expo-crypto';
 
-
-export default function report5({ data }) {
+export default function report5({ data, name }) {
   const [rdata, setRdata] = useState([]);
   const [sum, setSum] = useState();
   const [total, setTotal] = useState();
   const [viewMode, setViewMode] = useState("chart");
   const [dataP, setDataP] = useState([]);
+  const [year, setYear] = useState();
   if (typeof data != 'undefined' && data != null) {
     useEffect(() => {
       var sum = 0;
       var total = 0;
       //  const d = data.filter((item,i)=>i!==0);
 
-      //console.log(data);
-      const d = data.map(item => item);
 
+      const d = data.map(item => item);
+      setYear(d[0][0].substring(4, 0))
+      //  console.log(d);
       d.sort((a, b) => (b[0].localeCompare(a[0])));
       d.map(item => {
         sum += item[1];
@@ -54,7 +56,7 @@ export default function report5({ data }) {
           }
           else {
             return {
-              x: item[0].substring(5),
+              x: item[0].substring(8) + "/" + item[0].substring(7, 5),
               y: item[2],
             }
           }
@@ -123,37 +125,45 @@ export default function report5({ data }) {
 
     function renderChart() {
       const dataChart = dataP;
-      // console.log(dataChart);
+      // console.log(dataChart[0]['x']);
+      var thang = dataChart[0]['x'].substring(2);
       return (
+        <View style={{ flex: 1 }} key={name}>
+          <VictoryChart
+            theme={VictoryTheme.material}
+            width={480}
+            height={670}
+            // domainPadding={{ y: 50 }}
 
-        <VictoryChart
-          theme={VictoryTheme.material}
-          width={480}
-          height={650}
-          // domainPadding={{ y: 50 }}
-
-          padding={{ left: 80, right: 82, top: 20, bottom: 30 }}
+            padding={{ left: 72, right: 82, top: 20, bottom: 30 }}
 
 
-          domainPadding={{ x: 30 }}
-        //  domainPadding={{x: [10000, -1000], y: [100,10]}}
-        //  domain={{ y: [0, 20000000] }}
-        >
+            domainPadding={{ x: 30 }}
+          //  domainPadding={{x: [10000, -1000], y: [100,10]}}
+          //  domain={{ y: [0, 20000000] }}
+          >
 
-          <VictoryBar
+            <VictoryBar
 
-            // barRatio={0.5}
-            //   alignment="start"
-            style={{
-              data: { fill: "#79B45D" },
-            }}
+              barRatio={0.5}
+              //   alignment="start"
+              style={{
+                data: { fill: "#79B45D" },
+              }}
 
-            data={dataChart}
-            //   labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
-            labels={({ datum }) => convertNumber(datum.y)}
-          />
+              data={dataChart}
+              //   labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
+              labels={({ datum }) => convertNumber(datum.y)}
+            />
 
-        </VictoryChart>
+          </VictoryChart>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: 'red', fontSize: 20 }}>
+              Năm {year}
+            </Text>
+
+          </View>
+        </View>
 
       )
     }
@@ -208,7 +218,7 @@ export default function report5({ data }) {
 
 
     return (
-      <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }} >
         {/* Nav bar section */}
 
 
@@ -232,7 +242,11 @@ export default function report5({ data }) {
             viewMode == "chart" &&
             <View>
               {
-                renderChart()
+                // console.log(dataP)
+                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+                  //  console.log("-", dataP),
+                  dataP[0].x != 'undefined' ? renderChart() : null
+                ]) : null
               }
               {/* {renderSummary()}  */}
             </View>

@@ -87,7 +87,7 @@ export default function menuReport({ navigation }) {
       />}>
       {menu.map((item, index) =>
 
-      (<View key={index} style={styles.order}>
+      (<View key={item.naviName} style={styles.order}>
         <TouchableOpacity style={{
           flex: 1,
           flexDirection: 'row',

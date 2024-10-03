@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { itemlistSelector, orderlistSelector, statuslistSelector } from './source/redux/selector';
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { COLORS, FONTS, SIZES, icons, images } from './source/constants/';
+import { COLORS, FONTS, SIZES, icons, } from './source/constants';
 import { url } from "@env";
 
 import 'localstorage-polyfill';
@@ -16,7 +16,7 @@ import statusSlice, { fetchStatus } from './source/redux/statusSlice';
 //import invoiceSlice, { fetchInvoice } from './source/redux/invoiceSlice';
 import salesSlice from './source/redux/salesSlice';
 import paymentSlice from './source/redux/paymentSlice';
-import report8Slice from './source/redux/report8Slice';
+
 
 import { showMessage, hideMessage } from "react-native-flash-message";
 
@@ -25,41 +25,45 @@ const STATUS_STORAGE = "STATUS_KEY";
 const SALES_STORAGE = "SALES_KEY";
 
 function HomeScreen({ navigation, route }) {
-  const flashMessage = useRef();
-  const [refreshing, setRefreshing] = useState(false);
+
+  const [refreshing, setRefreshing] = useState(true);
   const dispath = useDispatch();
   const itemList = useSelector(itemlistSelector);
   const statusList = useSelector(statuslistSelector);
   const orderList = useSelector(orderlistSelector);
+  const [accessView, setAccessView] = useState("none");
+
 
 
 
   useEffect(() => {
-
-    const storagedItem = localStorage.getItem(ITEM_STORAGE);
-
-    if (storagedItem === '{}' || typeof storagedItem === 'undefined' || storagedItem === null) {
-      reloadItem();
-    }
+    if (route.params?.post) { setRefreshing(false); setAccessView('auto'); }
     else {
-      if (storagedItem) {
-        const _storagedItem = storagedItem.replace(/\'/g, '\"');
 
-        dispath(ItemSlice.actions.addItem(JSON.parse(_storagedItem)));
+      const storagedItem = localStorage.getItem(ITEM_STORAGE);
+
+      if (storagedItem === '{}' || typeof storagedItem === 'undefined' || storagedItem === null) {
+        reloadItem();
+      }
+      else {
+        if (storagedItem) {
+          const _storagedItem = storagedItem.replace(/\'/g, '\"');
+
+          dispath(ItemSlice.actions.addItem(JSON.parse(_storagedItem)));
+        }
+      }
+      const storagedStatus = localStorage.getItem(STATUS_STORAGE);
+
+      if (storagedStatus === '[]' || typeof storagedStatus === 'undefined' || storagedStatus === null) {
+        reloadTable();
+      }
+      else {
+        if (storagedStatus) {
+          const _storagedStatus = storagedStatus.replace(/\'/g, '\"');
+          dispath(statusSlice.actions.addStatus(JSON.parse(_storagedStatus)));
+        }
       }
     }
-    const storagedStatus = localStorage.getItem(STATUS_STORAGE);
-
-    if (storagedStatus === '[]' || typeof storagedStatus === 'undefined' || storagedStatus === null) {
-      reloadTable();
-    }
-    else {
-      if (storagedStatus) {
-        const _storagedStatus = storagedStatus.replace(/\'/g, '\"');
-        dispath(statusSlice.actions.addStatus(JSON.parse(_storagedStatus)));
-      }
-    }
-
     // loadInvoice(); 
     // getPaymentList();
   }, []);
@@ -108,6 +112,7 @@ function HomeScreen({ navigation, route }) {
 
 
       abortController.abort();
+
     };
 
 
@@ -125,10 +130,11 @@ function HomeScreen({ navigation, route }) {
     d.forEach(item => {
 
       promises.push(fetch(`${url}?action=getTables&table=${item[1]}`).then(async (data) => {
-        //console.log(item[1]);
+
         let d = await data.json();
         let b = {};
         b[item[1]] = table2Order(d.table);
+        //  console.log(b[item[1]]);
         dispath(OrderSlice.actions.table2Order((b)));
 
         return b;
@@ -138,15 +144,17 @@ function HomeScreen({ navigation, route }) {
     Promise.all(promises)
       .then((data) => {
         if (data.length == 0) {
-          setRefreshing(false);
+
           showMessage({
             message: "Không có dữ liệu",
             description: "Load dữ liệu",
             type: "info",
 
           })
-        } else {
           setRefreshing(false);
+          setAccessView('auto');
+        } else {
+
           showMessage({
             message: "Dữ liệu load thành công",
             description: "Load dữ liệu",
@@ -154,10 +162,12 @@ function HomeScreen({ navigation, route }) {
             backgroundColor: "#517fa4",
 
           })
+          setRefreshing(false);
+          setAccessView('auto');
         }
       })
       .catch((error) => {
-        setRefreshing(false);
+
         showMessage({
           message: error,
           description: "Load dữ liệu",
@@ -165,6 +175,8 @@ function HomeScreen({ navigation, route }) {
 
 
         })
+        setRefreshing(false);
+        setAccessView('auto');
       });
     /*
         statusList.map(item => {
@@ -252,8 +264,9 @@ function HomeScreen({ navigation, route }) {
 
     localStorage.setItem(STATUS_STORAGE, JSON.stringify(statusList));
   }, [statusList]);
+
   useEffect(() => {
-    //console.log(orderList);
+    //  console.log(orderList);
     localStorage.setItem(SALES_STORAGE, JSON.stringify(orderList));
   }, [orderList]);
 
@@ -275,7 +288,8 @@ function HomeScreen({ navigation, route }) {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    wait(60000).then(() => setRefreshing(false));
+    setAccessView('none');
+    wait(60000).then(() => { setRefreshing(false); setAccessView('auto'); });
   }, []);
 
   const wait = (timeout) => {
@@ -301,7 +315,7 @@ function HomeScreen({ navigation, route }) {
   }
   else {
     return (
-      <ScrollView contentContainerStyle={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} refreshControl={
+      <ScrollView contentContainerStyle={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.lightGray2 }} refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
@@ -311,7 +325,7 @@ function HomeScreen({ navigation, route }) {
           tintColor='#FFFFFF'
 
         />}>
-        <View >
+        <View pointerEvents={accessView}>
           <TouchableOpacity style={styles.Button} onPress={() => navigation.navigate('Tablelist', route.params.post ? { post: false } : { post: true })}>
             <Text style={styles.textButton}>Đặt món</Text>
           </TouchableOpacity>

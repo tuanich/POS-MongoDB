@@ -1,22 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { VictoryChart, VictoryBar, VictoryTheme, VictoryAxis, VictoryLabel } from 'victory-native';
-
+import * as Crypto from 'expo-crypto';
 import { convertNumber } from '../api';
 import { Svg } from 'react-native-svg';
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
-export default function report6({ data }) {
+export default function report6({ data, name }) {
   const [rdata, setRdata] = useState([]);
   const [sum, setSum] = useState();
   const [total, setTotal] = useState();
   const [viewMode, setViewMode] = useState("chart");
   const [dataP, setDataP] = useState([]);
+  const [year, setYear] = useState();
   if (typeof data != 'undefined' && data != null) {
     useEffect(() => {
       var sum = 0;
       var total = 0;
       // const d = data.filter((item,i)=>i!==0);
       const d = data.map(item => item);
+      // console.log(d);
+      //  
       d.map(item => {
         sum += item[2];
         total += item[3];
@@ -88,7 +91,7 @@ export default function report6({ data }) {
     }
     const processData = useCallback(() => {
       //  const d=data.map((item,index)=>((index==0)?(item[2]=0):item));
-      //  console.log(d);
+      //console.log(data);
       if (typeof data == 'undefined' || data == []) {
         return [{ x: 0, y: 0 }];
       }
@@ -101,7 +104,7 @@ export default function report6({ data }) {
           }
           else {
             return {
-              x: `T ${item[0]}/${item[1]}`,
+              x: `T${item[0]}/${item[1]}`,
               y: item[3],
             }
           }
@@ -112,36 +115,43 @@ export default function report6({ data }) {
       const dataChart = dataP;
       //  console.log(dataChart);
       return (
+        <View style={{ flex: 1 }} key={name}>
+          <VictoryChart
+            theme={VictoryTheme.material}
+            width={480}
+            height={670}
 
-        <VictoryChart
-          theme={VictoryTheme.material}
-          width={460}
-          height={500}
-
-          // domainPadding={{ y: 50 }}
-          padding={{ left: 70, right: 82, top: 20, bottom: 25 }}
+            // domainPadding={{ y: 50 }}
+            padding={{ left: 70, right: 82, top: 20, bottom: 25 }}
 
 
-          domainPadding={{ x: 30 }}
-          //  domainPadding={{x: [10000, -1000], y: [100,10]}}
-          domain={{ y: [0, 180000000] }}
-        >
+            domainPadding={{ x: 30 }}
+            //  domainPadding={{x: [10000, -1000], y: [100,10]}}
+            domain={{ y: [0, 180000000] }}
+          >
 
-          <VictoryBar horizontal
+            <VictoryBar horizontal
 
-            barRatio={0.6}
-            //   alignment="start"
-            style={{
-              data: { fill: "#79B45D" },
-            }}
+              barRatio={0.6}
+              //   alignment="start"
+              style={{
+                data: { fill: "#79B45D" },
+              }}
 
-            data={dataChart}
-            //     labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
-            labels={({ datum }) => '| ' + convertNumber(datum.y)}
+              data={dataChart}
+              //     labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
+              labels={({ datum }) => '| ' + convertNumber(datum.y)}
 
-          />
+            />
 
-        </VictoryChart>
+          </VictoryChart>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: 'red', fontSize: 20 }}>
+
+            </Text>
+
+          </View>
+        </View>
 
       )
     }
@@ -199,7 +209,7 @@ export default function report6({ data }) {
     };
 
     return (
-      <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }} >
         {/* Nav bar section */}
 
 
@@ -219,8 +229,14 @@ export default function report6({ data }) {
           }
           {
             viewMode == "chart" &&
-            <View>
-              {renderChart()}
+            <View key={name}>
+              {
+                // console.log(dataP)
+                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+                  //console.log("-", dataP),
+                  dataP[0].x != 'undefined' ? renderChart() : null
+                ]) : null
+              }
               {/* {renderSummary()}  */}
             </View>
           }

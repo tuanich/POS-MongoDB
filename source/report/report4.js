@@ -4,20 +4,19 @@ import {
     ScrollView,
     View,
     Text,
-    StatusBar,
+
     Image,
-    ImageBackground,
+
     TouchableOpacity,
-    FlatList,
-    Animated,
-    Platform
+
 } from 'react-native';
-import { VictoryPie } from 'victory-native';
+
 import { convertNumber } from "../api";
 
-import { Svg } from 'react-native-svg';
-import { COLORS, FONTS, SIZES, icons, images } from '../constants';
+import RenderChart from "./renderChart";
+import { COLORS, SIZES, icons } from '../constants';
 import RenderItem from './renderItem';
+import * as Crypto from 'expo-crypto';
 
 
 const colorScales = ['#4E8397', '#845EC2', '#2C73D2', '#FF6F91', '#008F7A', '#0081CF', '#4B4453', "#BEC1D2", '#42B0FF', '#C4FCEF', '#898C95', '#FFD573', '#95A9B8', '#008159', '#FF615F', '#8e44ad', '#FF0000', '#D0E9F4', '#AC5E00'];
@@ -141,106 +140,9 @@ export default function report4({ data, name }) {
 
         function renderChart() {
             let chartData = dataP;
-            // let colorScales = chartData.map((item) => item.color)
-            // let colorScales = colorScales.map((item) => item[0]);
-            let totalExpenseCount = chartData.reduce((a, b) => a + (b.Count || 0), 0)
-            let total = chartData.reduce((a, b) => a + (b.subTotal || 0), 0)
-
-
-
-
-            if (Platform.OS == 'ios') {
-                return (
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <VictoryPie
-
-                            data={chartData}
-                            labels={(datum) => `${datum.y}`}
-                            radius={({ datum }) => (selectedCategory && selectedCategory.name == datum.name) ? SIZES.width * 0.4 : SIZES.width * 0.4 - 10}
-                            innerRadius={80}
-                            labelRadius={({ innerRadius }) => (SIZES.width * 0.4 + innerRadius) / 2.5}
-                            style={{
-                                labels: { fill: "white", ...FONTS.body3 },
-                                parent: {
-                                    ...styles.shadow
-                                },
-                            }}
-                            width={SIZES.width * 0.8}
-                            height={SIZES.width * 0.8}
-                            colorScale={colorScales}
-                            events={[{
-                                target: "data",
-                                eventHandlers: {
-                                    onPress: () => {
-                                        return [{
-                                            target: "labels",
-                                            mutation: (props) => {
-                                                let categoryName = chartData[props.index].name
-                                                setSelectCategoryByName(categoryName)
-                                            }
-                                        }]
-                                    }
-                                }
-                            }]}
-
-                        />
-
-                        <View style={{ position: 'absolute', top: '42%', left: "42%" }}>
-                            <Text style={{ ...FONTS.h1, textAlign: 'center' }}>{totalExpenseCount}</Text>
-                            <Text style={{ ...FONTS.body3, textAlign: 'center' }}>Tổng đơn</Text>
-                            <Text style={{ ...FONTS.h4, textAlign: 'center' }}>{convertNumber(total)}</Text>
-                        </View>
-                    </View>
-
-                )
-            }
-            else {
-                // Android workaround by wrapping VictoryPie with SVG
-                return (
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <Svg width={SIZES.width} height={SIZES.width} style={{ width: "100%", height: "auto" }}>
-
-                            <VictoryPie
-                                standalone={false} // Android workaround
-                                data={chartData}
-                                labels={(datum) => `${datum.y}`}
-                                radius={({ datum }) => (selectedCategory && selectedCategory.name == datum.name) ? SIZES.width * 0.4 : SIZES.width * 0.4 - 10}
-                                innerRadius={80}
-                                labelRadius={({ innerRadius }) => (SIZES.width * 0.4 + innerRadius) / 2.5}
-                                style={{
-                                    labels: { fill: "white", ...FONTS.body3 },
-                                    parent: {
-                                        ...styles.shadow
-                                    },
-                                }}
-                                width={SIZES.width}
-                                height={SIZES.width}
-                                colorScale={colorScales}
-                                events={[{
-                                    target: "data",
-                                    eventHandlers: {
-                                        onPress: () => {
-                                            return [{
-                                                target: "labels",
-                                                mutation: (props) => {
-                                                    let categoryName = chartData[props.index].name
-                                                    setSelectCategoryByName(categoryName)
-                                                }
-                                            }]
-                                        }
-                                    }
-                                }]}
-
-                            />
-                        </Svg>
-                        <View style={{ position: 'absolute', top: '42%', left: "42%" }}>
-                            <Text style={{ ...FONTS.h1, textAlign: 'center' }}>{totalExpenseCount}</Text>
-                            <Text style={{ ...FONTS.body3, textAlign: 'center' }}>Tổng đơn</Text>
-                            <Text style={{ ...FONTS.h4, textAlign: 'center' }}>{convertNumber(total)}</Text>
-                        </View>
-                    </View>
-                )
-            }
+            return (
+                <RenderChart chartData={chartData} selectedCategory={selectedCategory} setSelectCategoryByName={setSelectCategoryByName} />
+            )
         }
 
 
@@ -253,7 +155,7 @@ export default function report4({ data, name }) {
 
 
             return (
-                <View style={{ padding: 5 }}>
+                <View style={{ padding: 5 }} key={name}>
                     <RenderItem data={data} setSelectCategoryByName={setSelectCategoryByName} selectedCategory={selectedCategory} name={name} />
                 </View>
 
@@ -274,7 +176,7 @@ export default function report4({ data, name }) {
                     <ScrollView>
                         <View>
                             {rdata.map((e, index) =>
-                            (<View style={styles.order} key={index + 40}>
+                            (<View style={styles.order} key={index}>
                                 <View style={{ flex: 0.11, alignItems: 'center', padding: 5 }}>
                                     <Text>{index + 1}</Text>
                                 </View>
@@ -309,7 +211,7 @@ export default function report4({ data, name }) {
         }
 
         return (
-            <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }}>
+            <View style={{ flex: 1, backgroundColor: COLORS.lightGray2 }} >
                 {/* Nav bar section */}
 
 

@@ -12,6 +12,7 @@ import Report5 from './report5';
 import Report6 from './report6';
 import Report7 from './report7';
 import Report8 from './report8';
+import * as Crypto from 'expo-crypto';
 
 
 export default function report1({ navigation, route }) {
@@ -19,34 +20,36 @@ export default function report1({ navigation, route }) {
         //const [rPayment,setRPayment]= useState([]);
         //const [refreshing, setRefreshing] = useState(false);
         //const dispath =useDispatch();
-
+        // const [key, setKey] = useState(Crypto.randomUUID());
         const report = useSelector(rSaleslistSelector);
         const rPayment = useSelector(rPaymentlistSelector);
-        const report8 = useSelector(report8ListSelector)
+        const report8 = useSelector(report8ListSelector);
 
         useEffect(() => {
 
                 navigation.setOptions({ title: route.params.name });
+                //  setKey(Crypto.randomUUID());
+
         }, [navigation]);
 
 
         function renderSwitch(c) {
                 switch (c) {
-                        case 0: return (<Report1 data={rPayment} name={"A"} />);
+                        case 0: return (<View style={{ flex: 1 }}>{ }<Report1 data={rPayment} name={"A"} /></View>);
                                 break;
-                        case 1: return (<Report2 data={report.R1.r1} name={"B"} />);
+                        case 1: return (<View style={{ flex: 1 }}>{ }<Report2 data={report.R1.r1} name={"B"} /></View>);
                                 break;
-                        case 2: return (<Report3 data={report.R1.r2} name={"C"} />);
+                        case 2: return (<View style={{ flex: 1 }}>{ }<Report3 data={report.R1.r2} name={"C"} /></View>);
                                 break;
-                        case 3: return (<Report4 data={report.R1.r3} name={"D"} />);
+                        case 3: return (<View style={{ flex: 1 }}>{ }<Report4 data={report.R1.r3} name={"D"} /></View>);
                                 break;
-                        case 4: return (<Report5 data={report.R2.r1} name={"E"} />);
+                        case 4: return (<View style={{ flex: 1 }}><Report5 data={report.R2.r1} name={"E"} /></View>);
                                 break;
-                        case 5: return (<Report6 data={report.R2.r2} name={"F"} />);
+                        case 5: return (<View style={{ flex: 1 }}><Report6 data={report.R2.r2} name={"F"} /></View>);
                                 break;
-                        case 6: return (<Report7 data={report.R1.r4} name={"G"} />);
+                        case 6: return (<View style={{ flex: 1 }}><Report7 data={report.R1.r4} name={"G"} /></View>);
                                 break;
-                        case 7: return (<Report8 data={report8} name={"H"} />);
+                        case 7: return (<View style={{ flex: 1 }} ><Report8 data={report8} name={"H"} /></View>);
                                 break;
 
                         default: break;
@@ -72,7 +75,8 @@ export default function report1({ navigation, route }) {
                         //         color='#fff'
                         //         tintColor='#fff'
                         //       />}>
-                        renderSwitch(route.params.i)
+                        <View style={{ flex: 1 }}>{renderSwitch(route.params.i)}</View>
+
 
                         // </ScrollView>
                 )

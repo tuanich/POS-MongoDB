@@ -1,5 +1,6 @@
 import { StyleSheet, Text, ScrollView, TouchableOpacity, View, } from "react-native";
 import { convertNumber } from "./source/api";
+import { COLORS, FONTS, SIZES, icons, } from './source/constants';
 export default function Data({ item, addOrder }) {
 
   if (typeof item != 'undefined') {
@@ -27,7 +28,8 @@ const styles = StyleSheet.create({
 
   button: {
     // alignItems: "flex-start",
-    backgroundColor: "#DDDDDD",
+    backgroundColor: "#ebebeb",
+    // borderColor: COLORS.lightGray2,
     borderColor: "white",
     borderWidth: 0.2,
     padding: 12,

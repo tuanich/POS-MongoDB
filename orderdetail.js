@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, Text, View, Alert, Button } from 'react-native';
 import Constants from 'expo-constants';
 import { format } from "date-fns";
 import { useCallback, useEffect, useState, useRef } from 'react';
@@ -13,7 +13,7 @@ import salesSlice from './source/redux/salesSlice';
 import invoiceSlice from './source/redux/invoiceSlice';
 import statusSlice from './source/redux/statusSlice';
 import { invoicelistSelector, itemlistSelector, orderlistSelector, statuslistSelector } from './source/redux/selector';
-
+import Dialog from "react-native-dialog";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants';
 import RenderNavBar from './renderNavBar';
@@ -29,7 +29,7 @@ import 'localstorage-polyfill';
 const SALES_STORAGE = "SALES_KEY";
 
 export default function Orderdetail({ navigation, route }) {
-
+  const [visible, setVisible] = useState(false);
   const flashMessage = useRef();
   const dispath = useDispatch();
 
@@ -250,15 +250,34 @@ export default function Orderdetail({ navigation, route }) {
   }, [order, sales, status, sum]);
 
   //--------Paymnet---
-  const paymentAlert = () =>
-    Alert.alert(mapping.ban[type], 'Sẽ được thanh toán', [
-      {
-        text: 'Cancel',
-        //   onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      { text: 'OK', onPress: () => payment() },
-    ]);
+  const renderMsgbox = () => {
+    return (
+      <View style={styles.Msgbox}>
+
+        <Dialog.Container visible={visible} contentStyle={{ borderRadius: 20, width: 390 }}>
+          <Dialog.Title ><Text style={{ color: 'red', alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>{mapping.ban[type]}</Text></Dialog.Title>
+          <Dialog.Description>
+            <Text style={{ color: 'black' }}> Sẽ được thanh toán.</Text> Sẽ được thanh toán.
+          </Dialog.Description>
+          <Dialog.Button label="Hủy" style={{ ...FONTS.body3 }} onPress={() => setVisible(false)} />
+          <Dialog.Button label="Ok" style={{ ...FONTS.body3, fontWeight: 'bold' }} onPress={() => payment()} />
+        </Dialog.Container>
+      </View>
+    );
+  }
+  const paymentAlert = () => {
+    setVisible(true);
+
+  }
+
+  /* Alert.alert(mapping.ban[type], 'Sẽ được thanh toán', [
+     {
+       text: 'Cancel',
+       //   onPress: () => console.log('Cancel Pressed'),
+       style: 'cancel',
+     },
+     { text: 'OK', onPress: () => payment() },
+   ]);*/
 
   const payment = useCallback(() => {
     if (order.length > 0) {
@@ -300,7 +319,8 @@ export default function Orderdetail({ navigation, route }) {
         type: "success",
         backgroundColor: "#517fa4",
       });
-
+      setOrder([]);
+      setVisible(false);
     }
 
   }, [order, sales, status, sum])
@@ -410,6 +430,7 @@ export default function Orderdetail({ navigation, route }) {
         {/* Nav bar section */}
         {/*renderNavBar()*/}
         <RenderNavBar save={save} back={back} paymentAlert={paymentAlert} sum={sum} type={type}></RenderNavBar>
+        {renderMsgbox()}
         <View style={styles.main}>
 
           <View style={styles.orderContent}>
@@ -444,7 +465,7 @@ const styles = StyleSheet.create({
   main: {
     flex: 1,
 
-
+    backgroundColor: COLORS.lightGray2
 
   },
 
@@ -477,6 +498,14 @@ const styles = StyleSheet.create({
     // color:'white',
   },
 
+  Msgbox: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    position: 'absolute',
+
+  },
 
 
 });
