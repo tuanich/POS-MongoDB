@@ -33,7 +33,9 @@ export const pay = (order, type, sum, invoice) => {
   currentPayment[0][0] = d;
   currentPayment[0][1] = invoice;
   currentPayment[0][2] = sum;
-  currentPayment[0][5] = type;
+  currentPayment[0][3] = type;
+  currentPayment[0][4] = 0;
+  currentPayment[0][5] = 0;
   const exportPayment = {
     order: exportData,
     payment: currentPayment,
@@ -82,8 +84,8 @@ const addToLine = (order, type, d, invoice) => {
     currentLine[3] = orderLine.description;
     currentLine[4] = orderLine.quan;
     currentLine[5] = orderLine.price;
-    currentLine[6] = 0;
-    currentLine[7] = type;
+    currentLine[6] = type;
+    currentLine[7] = 0;
 
     exportData.push(currentLine);
   });
@@ -133,36 +135,64 @@ export const getPayment = async () => {
   try {
 
     let response = await fetch(url + '?action=getPayments');
-    let { r1, r2, r3 } = await response.json();
-    let R1;
+    let { r2, r3 } = await response.json();
+
     let R2;
     let R3;
 
+    if (typeof r2 != 'undefined') {
+      R2 = r2.map((report) => { report[0] = checkDate(report[0]); return report })
+
+
+
+    }
+    else { R2 = []; }
+    if (typeof r3 != 'undefined') {//[, ...R2] = r2.map((report) => report);
+      R3 = r3;
+    }
+    else {
+      R3 = [];
+    }
+
+    let Data = {};
+
+
+    Data.R2 = R2;
+    Data.R3 = R3;
+
+    return Data;
+    // enter you logic when the fetch is successful
+    //  console.log(res);
+  } catch (error) {
+    // enter your logic for when there is an error (ex. error toast)
+
+    console.log(error)
+  }
+
+};
+
+export const getPayToday = async () => {
+  try {
+
+    let response = await fetch(url + '?action=getPayToday');
+    let { r1 } = await response.json();
+    let R1;
+
+
     if (typeof r1 != 'undefined') {
-      [, ...R1] = r1.map((report) => { report[0] = checkDate(report[0]); return report })
+      R1 = r1.map((report) => { report[0] = checkDate(report[0]); return report })
 
 
       //   R1= r1;
 
     }
-    else { [, ...R1] = []; }
-    if (typeof r2 != 'undefined') {//[, ...R2] = r2.map((report) => report);
-      R2 = r2;
-    }
-    else {
-      [, ...R2] = [];
-    }
-    if (typeof r3 != 'undefined') {//[, ...R3] = r3.map((report) => report);
-      R3 = r3;
-    }
-    else {
-      [, ...R3] = [];
-    }
+    else { R1 = []; }
+
+
     let Data = {};
 
     Data.R1 = R1;
-    Data.R2 = R2;
-    Data.R3 = R3;
+
 
     return Data;
     // enter you logic when the fetch is successful
@@ -302,9 +332,10 @@ export const getReport = async () => {
 
     data.R1 = report;
     data.R2 = report2;
+    // console.log(data.R2);
     return data;
     // enter you logic when the fetch is successful
-    //  console.log(res);
+
   } catch (error) {
     // enter your logic for when there is an error (ex. error toast)
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { VictoryChart, VictoryBar, VictoryTheme, VictoryAxis, VictoryLabel } from 'victory-native';
+import { VictoryChart, VictoryBar, VictoryTheme, VictoryAxis, VictoryLabel, VictoryLine } from 'victory-native';
 
 import { convertNumber } from '../api';
 import { Svg } from 'react-native-svg';
@@ -13,12 +13,13 @@ export default function report5({ data }) {
   const [total, setTotal] = useState();
   const [viewMode, setViewMode] = useState("chart");
   const [dataP, setDataP] = useState([]);
-  if (typeof data != 'undefined' || data != null) {
+  if (typeof data != 'undefined' && data != null) {
     useEffect(() => {
       var sum = 0;
       var total = 0;
       //  const d = data.filter((item,i)=>i!==0);
-      // console.log(data);
+
+      //console.log(data);
       const d = data.map(item => item);
 
       d.sort((a, b) => (b[0].localeCompare(a[0])));
@@ -36,19 +37,29 @@ export default function report5({ data }) {
     }, [data])
     const processData = useCallback(() => {
       //  const d=data.map((item,index)=>((index==0)?(item[2]=0):item));
-      //console.log(data);
-      return (data.map((item, index) => {
-        if (index == 0) return {
-          x: '0',
-          y: '0'
-        }
-        else {
-          return {
-            x: item[0],
-            y: JSON.stringify(item[2]),
+      //  console.log(data);
+
+      if (typeof data == 'undefined' || data == []) {
+        return [{ x: 0, y: 0 }];
+      }
+      else {
+        const d = data.map(item => item);
+
+        d.sort((b, a) => (b[0].localeCompare(a[0])));
+
+        return (d.map((item, index) => {
+          if (typeof item[0] == 'undefined' || typeof item[2] == 'undefined') return {
+            x: '0',
+            y: '0'
           }
-        }
-      }))
+          else {
+            return {
+              x: item[0].substring(5),
+              y: item[2],
+            }
+          }
+        }))
+      }
     }, [])
 
     function renderCategoryHeaderSection() {
@@ -112,33 +123,34 @@ export default function report5({ data }) {
 
     function renderChart() {
       const dataChart = dataP;
-      //console.log(dataChart);
+      // console.log(dataChart);
       return (
 
         <VictoryChart
           theme={VictoryTheme.material}
           width={480}
-          height={1100}
+          height={650}
           // domainPadding={{ y: 50 }}
+
           padding={{ left: 80, right: 82, top: 20, bottom: 30 }}
 
 
           domainPadding={{ x: 30 }}
-          //  domainPadding={{x: [10000, -1000], y: [100,10]}}
-          domain={{ y: [0, 10000000] }}
+        //  domainPadding={{x: [10000, -1000], y: [100,10]}}
+        //  domain={{ y: [0, 20000000] }}
         >
 
-          <VictoryBar horizontal
+          <VictoryBar
 
-            barRatio={0.5}
+            // barRatio={0.5}
             //   alignment="start"
             style={{
               data: { fill: "#79B45D" },
             }}
 
             data={dataChart}
-            labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
-
+            //   labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
+            labels={({ datum }) => convertNumber(datum.y)}
           />
 
         </VictoryChart>
@@ -159,7 +171,7 @@ export default function report5({ data }) {
             <View >
               {rdata.map((e, index) =>
 
-              (<View style={styles.order} key={index}>
+              (<View style={styles.order} key={index + 50}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>

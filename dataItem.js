@@ -2,7 +2,7 @@ import { StyleSheet, Text, ScrollView, TouchableOpacity, View, } from "react-nat
 import { Feather } from '@expo/vector-icons';
 import { convertNumber } from "./source/api";
 export default function DataItem({ item, editItem, delItem }) {
-  //console.log("item: ", item);
+
   if (typeof item != 'undefined') {
 
     return (

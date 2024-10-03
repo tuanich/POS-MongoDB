@@ -25,28 +25,28 @@ export default function report1({ navigation, route }) {
         const report8 = useSelector(report8ListSelector)
 
         useEffect(() => {
-                // console.log(report.R2.r1);
+
                 navigation.setOptions({ title: route.params.name });
         }, [navigation]);
 
 
         function renderSwitch(c) {
                 switch (c) {
-                        case 0: return (<Report1 data={rPayment} />);
+                        case 0: return (<Report1 data={rPayment} name={"A"} />);
                                 break;
-                        case 1: return (<Report2 data={report.R1.r1} />);
+                        case 1: return (<Report2 data={report.R1.r1} name={"B"} />);
                                 break;
-                        case 2: return (<Report3 data={report.R1.r2} />);
+                        case 2: return (<Report3 data={report.R1.r2} name={"C"} />);
                                 break;
-                        case 3: return (<Report4 data={report.R1.r3} />);
+                        case 3: return (<Report4 data={report.R1.r3} name={"D"} />);
                                 break;
-                        case 4: return (<Report5 data={report.R2.r1} />);
+                        case 4: return (<Report5 data={report.R2.r1} name={"E"} />);
                                 break;
-                        case 5: return (<Report6 data={report.R2.r2} />);
+                        case 5: return (<Report6 data={report.R2.r2} name={"F"} />);
                                 break;
-                        case 6: return (<Report7 data={report.R1.r4} />);
+                        case 6: return (<Report7 data={report.R1.r4} name={"G"} />);
                                 break;
-                        case 7: return (<Report8 data={report8} />);
+                        case 7: return (<Report8 data={report8} name={"H"} />);
                                 break;
 
                         default: break;

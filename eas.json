@@ -24,7 +24,7 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "url": "https://script.google.com/macros/s/AKfycbz5U_ugKgSfnOOyHGmQqm1QWOtizqWK0FHCoE_2aZvnF7GdcVDYvOvLBI-AACBBXkSo/exec"
+        "url": "https://script.google.com/macros/s/AKfycbwhVaBl9nVrBw7ekgiTeXhVa-dti84twGe3ucBbcshxwdSUMUrJFxMcDVp2rRxPrw_6-A/exec"
       },
       "android": {
         "buildType": "apk"

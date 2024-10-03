@@ -213,7 +213,7 @@ function App() {
 
   useEffect(() => {
     async function prepare() {
-      //    console.log("preventAuto-hide");
+
       await SplashScreen.preventAutoHideAsync();
     }
     prepare();
@@ -222,14 +222,14 @@ function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
-      //    console.log("fontsLoaded-hide");
+
       await SplashScreen.hideAsync();
-      //    <AppLoading />;
+
     }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    //  console.log("!fontsLoaded");
+
     return null;
   }
 

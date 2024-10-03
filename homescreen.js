@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
-import { getPayment, getSales, getInvoice, getItems, getStatus, getTable, table2Order } from './source/api';
+import { getPayToday, getSales, getInvoice, getItems, getStatus, getTable, table2Order } from './source/api';
 import { useDispatch, useSelector } from 'react-redux';
 //import { addInvoiceAction, addItemAction,addReportPayment,addReportSales,addStatus,table2Order,addReport8} from './source/redux/action';
 
@@ -61,7 +61,7 @@ function HomeScreen({ navigation, route }) {
     }
 
     // loadInvoice(); 
-    getPaymentList();
+    // getPaymentList();
   }, []);
 
   const reloadItem = () => {
@@ -85,18 +85,28 @@ function HomeScreen({ navigation, route }) {
     let abortController = new AbortController();
     let aborted = abortController.signal.aborted; // true || false
     let data = async () => {
-      const d = (await getStatus());
+      const D = (await getStatus()); // get status table
+      const E = (await getSales()); //get sales today
+      const B = (await getPayToday()); //get payment today
       aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
       if (aborted === false) {
 
+        if (JSON.stringify(B.R1) != '[[null]]' && JSON.stringify(B.R1) != '[null]')  //item in array undefined
+        {
+          dispath(paymentSlice.actions.addReportPayment(B.R1.reverse()));
+          dispath(salesSlice.actions.addReportSales(E.reverse()));
+        }
+        dispath(statusSlice.actions.addStatus(D));
+        //  getPaymentList();
+        reloadOrderTable(D);
 
-        dispath(statusSlice.actions.addStatus(d));
-        reloadOrderTable(d);
 
       }
     }
     data();
     return () => {
+
+
       abortController.abort();
     };
 
@@ -165,7 +175,7 @@ function HomeScreen({ navigation, route }) {
         });*/
   };
 
-  const TabletoOrder = (table) => {
+  /*const TabletoOrder = (table) => {
 
     let abortController = new AbortController();
     let aborted = abortController.signal.aborted; // true || false
@@ -211,22 +221,29 @@ function HomeScreen({ navigation, route }) {
     let aborted = abortController.signal.aborted; // true || false
     let data = async () => {
       let d = (await getSales());
-      let b = (await getPayment());
+      let b = (await getPayToday());
 
       aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
       if (aborted === false) {
-        dispath(salesSlice.actions.addReportSales(d.reverse()));
-        dispath(paymentSlice.actions.addReportPayment(b.R1.reverse()));
-        dispath(report8Slice.actions.addReport8(b.R3));
+
+
+        // console.log("Paytoday:", JSON.stringify([undefined])); // Array[[undefined]]
+        if (JSON.stringify(b.R1) != '[[null]]' && JSON.stringify(b.R1) != '[null]') {
+
+          dispath(paymentSlice.actions.addReportPayment(b.R1.reverse()));
+          dispath(salesSlice.actions.addReportSales(d.reverse()));
+        }
+
 
       }
     }
     data();
     return () => {
+
       abortController.abort();
     };
   }
-
+*/
   useEffect(() => {
 
     localStorage.setItem(ITEM_STORAGE, JSON.stringify(itemList));
@@ -246,23 +263,26 @@ function HomeScreen({ navigation, route }) {
     }
   }, [statusList]);
 
+  /*
   useEffect(() => {
-    getPaymentList();
+    //console.log(route.params?.post);
+    //getPaymentList();
 
   }, [route.params?.post]);
+  */
 
 
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    wait(25000).then(() => setRefreshing(false));
+    wait(60000).then(() => setRefreshing(false));
   }, []);
 
   const wait = (timeout) => {
     reloadItem();
     reloadTable();
     //reloadOrderTable();
-    getPaymentList();
+
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
@@ -287,8 +307,9 @@ function HomeScreen({ navigation, route }) {
           onRefresh={onRefresh}
           title='loading'
           progressBackgroundColor='#79B45D'
-          color='#fff'
-          tintColor='#fff'
+          color='#FFFFFF'
+          tintColor='#FFFFFF'
+
         />}>
         <View >
           <TouchableOpacity style={styles.Button} onPress={() => navigation.navigate('Tablelist', route.params.post ? { post: false } : { post: true })}>

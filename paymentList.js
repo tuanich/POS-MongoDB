@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator
 import { useSelector } from 'react-redux';
 import { paymentlistSelector, saleslistSelector } from './source/redux/selector'
 import PaymentDetail from './paymentDetail';
-import { convertNumber } from './source/api';
+import { convertNumber, pay } from './source/api';
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants/';
 import mapping from "./mapping.json";
 
@@ -13,6 +13,7 @@ export default function paymentList({ navigation, route }) {
   const [sales, setSales] = useState();
   const payment = useSelector(paymentlistSelector);
   const dataInvoice = useSelector(saleslistSelector);
+
   // const [dataP,setDataP] =useState([]);
 
   useEffect(() => {
@@ -23,17 +24,11 @@ export default function paymentList({ navigation, route }) {
 
   useEffect(() => {
 
-    //  var su=0;
-    //   setDataP(payment.reverse());
-    // payment.map((item)=> su+= parseInt(item[2]));
-
-
-
-
 
     setSum(convertNumber(payment.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)));
 
     if (JSON.stringify(dataInvoice) != '[]') {
+
       let s = dataInvoice.reduce((result, item) => ({
         ...result,
         [item[1]]: [
@@ -43,10 +38,15 @@ export default function paymentList({ navigation, route }) {
       }),
         {},
       );
+
+
       delete s['invoice'];
+      // console.log("a", s);
       setSales(s);
     }
   }, [dataInvoice, payment])
+
+
 
   // const groupBy = (posts, key) => {
 
@@ -77,7 +77,7 @@ export default function paymentList({ navigation, route }) {
 
 
 
-  if (JSON.stringify(payment) == '[]' || JSON.stringify(dataInvoice) == '[]') {
+  if (JSON.stringify(payment) == '[]' || JSON.stringify(payment) == '[null]' || JSON.stringify(payment) == '[[null]]') {
 
 
     return (
@@ -89,6 +89,8 @@ export default function paymentList({ navigation, route }) {
     );
   }
   else {
+
+
 
     return (
       <ScrollView>
@@ -124,6 +126,7 @@ export default function paymentList({ navigation, route }) {
       </ScrollView>
     )
   }
+
 };
 
 const styles = StyleSheet.create({

@@ -11,7 +11,7 @@ export default function report6({ data }) {
   const [total, setTotal] = useState();
   const [viewMode, setViewMode] = useState("chart");
   const [dataP, setDataP] = useState([]);
-  if (typeof data != 'undefined' || data != null) {
+  if (typeof data != 'undefined' && data != null) {
     useEffect(() => {
       var sum = 0;
       var total = 0;
@@ -89,18 +89,24 @@ export default function report6({ data }) {
     const processData = useCallback(() => {
       //  const d=data.map((item,index)=>((index==0)?(item[2]=0):item));
       //  console.log(d);
-      return (data.map((item, index) => {
-        if (index == 0) return {
-          x: '0',
-          y: '0'
-        }
-        else {
-          return {
-            x: `T ${item[0]}/${item[1]}`,
-            y: item[3],
+      if (typeof data == 'undefined' || data == []) {
+        return [{ x: 0, y: 0 }];
+      }
+      else {
+        return (data.map((item, index) => {
+          //    if (index == 0) return {
+          if (typeof item[0] == 'undefined' || typeof item[2] == 'undefined' || typeof item[3] == 'undefined') return {
+            x: '0',
+            y: 0
           }
-        }
-      }))
+          else {
+            return {
+              x: `T ${item[0]}/${item[1]}`,
+              y: item[3],
+            }
+          }
+        }))
+      }
     }, [])
     function renderChart() {
       const dataChart = dataP;
@@ -118,7 +124,7 @@ export default function report6({ data }) {
 
           domainPadding={{ x: 30 }}
           //  domainPadding={{x: [10000, -1000], y: [100,10]}}
-          domain={{ y: [1000000, 200000000] }}
+          domain={{ y: [0, 180000000] }}
         >
 
           <VictoryBar horizontal
@@ -130,7 +136,8 @@ export default function report6({ data }) {
             }}
 
             data={dataChart}
-            labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
+            //     labels={({ datum, index }) => index != 0 ? '| ' + convertNumber(datum.y) : ''}
+            labels={({ datum }) => '| ' + convertNumber(datum.y)}
 
           />
 
@@ -153,7 +160,7 @@ export default function report6({ data }) {
             <View >
               {rdata.map((e, index) =>
 
-              (<View style={styles.order} key={index}>
+              (<View style={styles.order} key={index + 60}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>

@@ -22,8 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {},
-      "package": "banhcanhghtrang.vn",
-      "versionCode": 1
+      "package": "banhcanhghtrang.vn"
     },
     "web": {
       "favicon": "./assets/favicon.png"
