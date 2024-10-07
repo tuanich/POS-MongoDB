@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { getReport, getPayment } from './api';
+//import { getReport, getPayment } from './api';
 import { useDispatch } from 'react-redux';
 import { addrPayment, addrSales, addReport8 } from './redux/action';
 import rPaymentSlice from './redux/rPaymentSlice';
 import rSalesSlice from './redux/rSalesSlice';
 import report8Slice from './redux/report8Slice';
-
+import { getReport } from "./mongo";
 import { useEffect, useCallback, useState } from 'react';
 import { COLORS, FONTS, SIZES, icons, images } from '../source/constants/';
+import reportSlice from './redux/reportSlice';
 
 
 const menu = [{ name: 'Báo cao theo PT vận chuyển trong ngày', naviName: 'Report1' },
@@ -24,6 +25,7 @@ const menu = [{ name: 'Báo cao theo PT vận chuyển trong ngày', naviName: '
 export default function menuReport({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const dispath = useDispatch();
+  const [accessView, setAccessView] = useState("none");
 
   useEffect(() => {
     // reloadReport();
@@ -36,47 +38,57 @@ export default function menuReport({ navigation }) {
     let abortController = new AbortController();
     let aborted = abortController.signal.aborted; // true || false
     let data = async () => {
-      let d = (await getReport());
-      let b = (await getPayment());
+      // let d = (await getReport());
+      // let b = (await getPayment());
+      let report = (await getReport());
 
 
       aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
       if (aborted === false) {
 
-        if (typeof d != 'undefined') {
+        if (typeof report != 'undefined') {
 
-          dispath(rSalesSlice.actions.addrSales(d));
+          dispath(reportSlice.actions.addReport(report));
         }
-        if (typeof b != 'undefined') {
-          dispath(rPaymentSlice.actions.addrPayment(b.R2));
-          dispath(report8Slice.actions.addReport8(b.R3))
 
-        }
+        /*
+                if (typeof d != 'undefined') {
+        
+                  dispath(rSalesSlice.actions.addrSales(d));
+                }
+                if (typeof b != 'undefined') {
+                  dispath(rPaymentSlice.actions.addrPayment(b.R2));
+                  dispath(report8Slice.actions.addReport8(b.R3)); 
+ 
+      }*/
       }
+      setRefreshing(false);
+      setAccessView('auto');
     }
     data();
     return () => {
+
       abortController.abort();
-      setRefreshing(false);
+
     };
   }
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    setAccessView('none');
     wait(30000).then(() => setRefreshing(false));
   }, []);
 
   const wait = (timeout) => {
     reloadReport();
-    //  console.log(rPayment);
-    //  renderSwitch(route.params.i);
+
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
 
   return (
     // <View style={{ padding: 5 }}>
-    <ScrollView contentContainerStyle={{}} refreshControl={
+    <ScrollView pointerEvents={accessView} contentContainerStyle={{}} refreshControl={
       <RefreshControl
         refreshing={refreshing}
         onRefresh={onRefresh}
@@ -85,33 +97,35 @@ export default function menuReport({ navigation }) {
         color='#fff'
         tintColor='#fff'
       />}>
-      {menu.map((item, index) =>
+      <View pointerEvents={accessView}>
+        {menu ? menu.map((item, index) =>
 
-      (<View key={item.naviName} style={styles.order}>
-        <TouchableOpacity style={{
-          flex: 1,
-          flexDirection: 'row',
-          height: 50,
-          //  width:500,
-          marginLeft: 5,
-          marginRight: 5,
-          // justifyContent:'center',
-          paddingHorizontal: SIZES.radius,
-          borderRadius: 10,
-          backgroundColor: COLORS.white,
-          alignItems: 'center',
-          marginTop: 5,
-        }} onPress={() => navigation.navigate('Report', { i: index, name: item.name })}>
-          <View >
+        (<View key={item.naviName} style={styles.order}>
+          <TouchableOpacity style={{
+            flex: 1,
+            flexDirection: 'row',
+            height: 50,
+            //  width:500,
+            marginLeft: 5,
+            marginRight: 5,
+            // justifyContent:'center',
+            paddingHorizontal: SIZES.radius,
+            borderRadius: 10,
+            backgroundColor: COLORS.white,
+            alignItems: 'center',
+            marginTop: 5,
+          }} onPress={() => navigation.navigate('Report', { i: index, name: item.name })}>
+            <View >
 
-            {/* <Text style={styles.name}>{e.item.name}</Text> */}
-            <Text style={{ marginLeft: SIZES.base, color: COLORS.primary, ...FONTS.h3 }}>{item.name}</Text>
-          </View>
-        </TouchableOpacity>
+              {/* <Text style={styles.name}>{e.item.name}</Text> */}
+              <Text style={{ marginLeft: SIZES.base, color: COLORS.primary, ...FONTS.h3 }}>{item.name}</Text>
+            </View>
+          </TouchableOpacity>
 
-      </View>))
+        </View>))
 
-      }
+          : null}
+      </View>
 
     </ScrollView>
   )

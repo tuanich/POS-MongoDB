@@ -14,12 +14,12 @@ export const pay = (order, type, sum, invoice) => {
   var options = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric' };
   var d;
 
-  if (typeof order[0].timeStamp != 'undefined') {
+  if (typeof order[0].timestamp != 'undefined') {
 
 
-    //var da = new Date(order[0].timeStamp);;
+    //var da = new Date(order[0].timestamp);;
     // d = da.toLocaleString('en-US',options);
-    d = checkDate(order[0].timeStamp)
+    d = checkDate(order[0].timestamp)
 
   }
   else {
@@ -28,6 +28,7 @@ export const pay = (order, type, sum, invoice) => {
     d = format(date, 'MM/dd/yyyy, HH:mm:ss');
 
   }
+
   const exportData = addToLine(order, type, d, invoice);
   const currentPayment = [[]];
   currentPayment[0][0] = d;
@@ -48,29 +49,31 @@ export const pay = (order, type, sum, invoice) => {
 
 const postAsync = async (data) => {
 
-  try {
 
-    const response = await fetch(url + '?action=addSales', {
-      method: 'POST',
-      mode: 'no-cors',
-      cache: 'no-cache',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      redirect: 'follow',
-      body: JSON.stringify(data)
-    });
-    const res = await response.json();
-    //   console.log("thanh cong:",res);
-    // enter you logic when the fetch is successful
-    //  console.log(res);
-  } catch (error) {
-    // enter your logic for when there is an error (ex. error toast)
 
-    console.log("addSalse loi:", error)
-  }
-
+  /* try {
+ 
+     const response = await fetch(url + '?action=addSales', {
+       method: 'POST',
+       mode: 'no-cors',
+       cache: 'no-cache',
+       headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json'
+       },
+       redirect: 'follow',
+       body: JSON.stringify(data)
+     });
+     const res = await response.json();
+     //   console.log("thanh cong:",res);
+     // enter you logic when the fetch is successful
+     //  console.log(res);
+   } catch (error) {
+     // enter your logic for when there is an error (ex. error toast)
+ 
+     console.log("addSalse loi:", error)
+   }
+ */
 };
 
 const addToLine = (order, type, d, invoice) => {
@@ -82,7 +85,7 @@ const addToLine = (order, type, d, invoice) => {
     currentLine[1] = invoice;
     currentLine[2] = orderLine.sku;
     currentLine[3] = orderLine.description;
-    currentLine[4] = orderLine.quan;
+    currentLine[4] = orderLine.quantity;
     currentLine[5] = orderLine.price;
     currentLine[6] = type;
     currentLine[7] = 0;
@@ -140,7 +143,7 @@ export const getPayment = async () => {
     let R2;
     let R3;
 
-    if (typeof r2 != 'undefined') {
+    if (r2) {
       R2 = r2.map((report) => { report[0] = checkDate(report[0]); return report })
 
 
@@ -179,7 +182,7 @@ export const getPayToday = async () => {
     let R1;
 
 
-    if (typeof r1 != 'undefined') {
+    if (r1) {
       R1 = r1.map((report) => { report[0] = checkDate(report[0]); return report })
 
 
@@ -287,8 +290,7 @@ else
   const h = date.getHours();
   const ms = date.getMinutes();
   const s = date.getSeconds();
-  const id = h * 24 + ms * 60 + s;
-
+  const id = h.toString() + ms.toString() + s.toString();
   this.invoiceNumber = today + '-' + id;
   return invoiceNumber;
 }
@@ -311,9 +313,9 @@ export const getItems = async () => {
     // let [, ...Drink] = drinks.map((drink) => drink);
     // let [, ...Other] = others.map((other) => other);
     let Data = {};
-    Data.Item = items;
-    Data.Drink = drinks;
-    Data.Other = others;
+    Data.Items = items;
+    Data.Drinks = drinks;
+    Data.Others = others;
 
     return Data;
   } catch {
@@ -438,7 +440,7 @@ export const table2Order = (table) => {
   // console.log(table);
   let order = [];
   table.forEach(item => {
-    let dataString = { timeStamp: `${item[0]}`, invoice: `${item[1]}`, sku: `${item[2]}`, description: `${item[3]}`, quan: `${item[4]}`, price: `${item[5]}`, type: `${item[7]}` };
+    let dataString = { timestamp: `${item[0]}`, invoice: `${item[1]}`, sku: `${item[2]}`, description: `${item[3]}`, quan: `${item[4]}`, price: `${item[5]}`, type: `${item[7]}` };
     order.push(dataString);
   })
   return order;

@@ -19,7 +19,7 @@ const colorScales = ['#4E8397', '#845EC2', '#2C73D2', '#FF6F91', '#008F7A', '#00
 export default function RenderItem({ data, selectedCategory, setSelectCategoryByName, name }) {
 
 
-    return (
+    return (data ?
         data.map((item, index) =>
         (
             <TouchableOpacity key={index + "-" + name}
@@ -64,5 +64,5 @@ export default function RenderItem({ data, selectedCategory, setSelectCategoryBy
 
         )
         )
-    )
+        : null)
 }

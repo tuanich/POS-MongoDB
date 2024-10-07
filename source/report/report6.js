@@ -18,11 +18,11 @@ export default function report6({ data, name }) {
       var total = 0;
       // const d = data.filter((item,i)=>i!==0);
       const d = data.map(item => item);
-      // console.log(d);
+
       //  
       d.map(item => {
-        sum += item[2];
-        total += item[3];
+        sum += item.quantity;
+        total += item.total;
       });
       setRdata(d);
       setSum(convertNumber(sum));
@@ -91,21 +91,21 @@ export default function report6({ data, name }) {
     }
     const processData = useCallback(() => {
       //  const d=data.map((item,index)=>((index==0)?(item[2]=0):item));
-      //console.log(data);
+
       if (typeof data == 'undefined' || data == []) {
         return [{ x: 0, y: 0 }];
       }
       else {
         return (data.map((item, index) => {
           //    if (index == 0) return {
-          if (typeof item[0] == 'undefined' || typeof item[2] == 'undefined' || typeof item[3] == 'undefined') return {
+          if (typeof item._id == 'undefined' || typeof item.quantity == 'undefined' || typeof item.total == 'undefined') return {
             x: '0',
             y: 0
           }
           else {
             return {
-              x: `T${item[0]}/${item[1]}`,
-              y: item[3],
+              x: `T${item._id.month}/${item._id.year}`,
+              y: item.total,
             }
           }
         }))
@@ -113,7 +113,7 @@ export default function report6({ data, name }) {
     }, [])
     function renderChart() {
       const dataChart = dataP;
-      //  console.log(dataChart);
+
       return (
         <View style={{ flex: 1 }} key={name}>
           <VictoryChart
@@ -168,27 +168,28 @@ export default function report6({ data, name }) {
           </View>
           <ScrollView>
             <View >
-              {rdata.map((e, index) =>
+              {rdata ? rdata.map((e, index) =>
 
               (<View style={styles.order} key={index + 60}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>
                 <View style={{ flex: 0.2, alignItems: 'flex-start', padding: 5 }}>
-                  <Text>{e[0]}</Text>
+                  <Text>{e._id.month}</Text>
                 </View>
                 <View style={{ flex: 0.2, alignItems: 'flex-start', padding: 5 }}>
-                  <Text>{e[1]}</Text>
+                  <Text>{e._id.year}</Text>
                 </View>
                 <View style={{ flex: 0.15, alignItems: 'center', padding: 5 }}>
-                  <Text>{e[2]}</Text>
+                  <Text>{e.quantity}</Text>
                 </View>
                 <View style={{ flex: 0.32, alignItems: 'flex-end', padding: 5 }}>
-                  <Text>{convertNumber(e[3])}</Text>
+                  <Text>{convertNumber(e.total)}</Text>
                 </View>
               </View>)
 
-              )}
+              )
+                : null}
             </View>
 
             <View style={{ flexDirection: 'row', flex: 1 }}>
@@ -231,9 +232,9 @@ export default function report6({ data, name }) {
             viewMode == "chart" &&
             <View key={name}>
               {
-                // console.log(dataP)
+
                 (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
-                  //console.log("-", dataP),
+
                   dataP[0].x != 'undefined' ? renderChart() : null
                 ]) : null
               }

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Trang POS",
-    "slug": "banhcanhghetrang",
-    "version": "1.1.5",
+    "name": "POS Restaurant",
+    "slug": "posmongo",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -33,7 +33,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "2e4b6c23-f7c6-45f2-9261-8a42ef40129a"
+        "projectId": "721a0fe8-11dd-40f4-9cff-1d4c5bd28452"
       }
     },
     "owner": "tuanich"

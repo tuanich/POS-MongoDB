@@ -47,6 +47,6 @@ export const fetchOrder = createAsyncThunk('order/fetchOrder', async (table) => 
   let d = {};
   d[table] = table2Order(data.table);
 
-  // console.log(data.table);
+
   return d;
 })

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
-import { getPayToday, getSales, getInvoice, getItems, getStatus, getTable, table2Order } from './source/api';
+import { getPayToday, getSales, getInvoice, getStatus, getTable, table2Order } from './source/api';
 import { useDispatch, useSelector } from 'react-redux';
 //import { addInvoiceAction, addItemAction,addReportPayment,addReportSales,addStatus,table2Order,addReport8} from './source/redux/action';
 
@@ -8,7 +8,7 @@ import { itemlistSelector, orderlistSelector, statuslistSelector } from './sourc
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { COLORS, FONTS, SIZES, icons, } from './source/constants';
 import { url } from "@env";
-
+import { getItems, getTables, getPayments } from './source/mongo';
 import 'localstorage-polyfill';
 import ItemSlice, { fetchItems } from './source/redux/itemSlice';
 import OrderSlice from './source/redux/orderSlice';
@@ -19,10 +19,12 @@ import paymentSlice from './source/redux/paymentSlice';
 
 
 import { showMessage, hideMessage } from "react-native-flash-message";
+import { ta } from 'date-fns/locale';
 
 const ITEM_STORAGE = "ITEM_KEY";
 const STATUS_STORAGE = "STATUS_KEY";
 const SALES_STORAGE = "SALES_KEY";
+const PAYMENT_STORAGE = "PAYMENT_KEY";
 
 function HomeScreen({ navigation, route }) {
 
@@ -82,28 +84,83 @@ function HomeScreen({ navigation, route }) {
     // return () => {
     // abortController.abort();
     // };      
-    dispath(fetchItems());
+    //  dispath(fetchItems());
+    loadItems();
+
+
+  }
+
+  const loadItems = () => {
+    let abortController = new AbortController();
+    let aborted = abortController.signal.aborted; // true || false
+    let data = async () => {
+      const D = (await getItems()); // get status table
+
+      aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
+      if (aborted === false) {
+        if (JSON.stringify(D) != '[[null]]' && JSON.stringify(D) != '[null]' && typeof D != '[undefined]') {
+
+          localStorage.setItem(ITEM_STORAGE, JSON.stringify(D));
+
+        }
+      }
+    }
+    data();
+    return () => {
+      abortController.abort();
+    }
   }
 
   const reloadTable = () => {
     let abortController = new AbortController();
     let aborted = abortController.signal.aborted; // true || false
     let data = async () => {
-      const D = (await getStatus()); // get status table
-      const E = (await getSales()); //get sales today
-      const B = (await getPayToday()); //get payment today
+      const D = (await getTables()); // get status table
+      const E = (await getPayments()); //get sales today
+      //  const B = (await getPayToday()); //get payment today
       aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
       if (aborted === false) {
 
-        if (JSON.stringify(B.R1) != '[[null]]' && JSON.stringify(B.R1) != '[null]')  //item in array undefined
-        {
-          dispath(paymentSlice.actions.addReportPayment(B.R1.reverse()));
-          dispath(salesSlice.actions.addReportSales(E.reverse()));
-        }
-        dispath(statusSlice.actions.addStatus(D));
-        //  getPaymentList();
-        reloadOrderTable(D);
+        /*   if (JSON.stringify(B.R1) != '[[null]]' && JSON.stringify(B.R1) != '[null]')  //item in array undefined
+           {
+             dispath(paymentSlice.actions.addReportPayment(B.R1.reverse()));
+             dispath(salesSlice.actions.addReportSales(E.reverse()));
+           }
+           dispath(statusSlice.actions.addStatus(D));
+           //  getPaymentList();
+           reloadOrderTable(D);*/
 
+        if (JSON.stringify(E) != '[[null]]' && JSON.stringify(E) != '[null]' && typeof E != '[undefined]') {
+
+          localStorage.setItem(PAYMENT_STORAGE, JSON.stringify(E));
+
+        }
+        //    dispath(salesSlice.actions.addReportSales(E.sales.reverse()));
+
+        let status = [];
+        let table = {};
+        let i = {};
+        var type;
+        D.forEach(item => {
+
+          type = item.type;
+          i[type] = item[item.type];
+          table = { ...i, };
+          status.push([item.sku, item.type, item.status, item.subtotal, item.timestamp, item.name]);
+        })
+
+
+
+        dispath(statusSlice.actions.addStatus(status));
+        dispath(OrderSlice.actions.table2Order(table));
+        showMessage({
+          message: "Dữ liệu load thành công",
+          description: "Load dữ liệu",
+          type: "success",
+          backgroundColor: "#517fa4",
+        })
+        setRefreshing(false);
+        setAccessView('auto');
 
       }
     }
@@ -134,7 +191,7 @@ function HomeScreen({ navigation, route }) {
         let d = await data.json();
         let b = {};
         b[item[1]] = table2Order(d.table);
-        //  console.log(b[item[1]]);
+
         dispath(OrderSlice.actions.table2Order((b)));
 
         return b;
@@ -188,19 +245,19 @@ function HomeScreen({ navigation, route }) {
   };
 
   /*const TabletoOrder = (table) => {
-
+ 
     let abortController = new AbortController();
     let aborted = abortController.signal.aborted; // true || false
     let data = async () => {
       let d = (await getTable(table));
-
+ 
       aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
       if (aborted === false) {
         let b = {};
         b[table] = d;
         //  console.log(b);
         dispath(OrderSlice.actions.table2Order((b)));
-
+ 
       }
       //console.log("false");
     }
@@ -209,9 +266,9 @@ function HomeScreen({ navigation, route }) {
       abortController.abort();
     };
   }
-
+ 
   const loadInvoice = () => {
-
+ 
     // let abortController = new AbortController();
     // let aborted = abortController.signal.aborted; // true || false
     // let data = async () => {
@@ -227,31 +284,31 @@ function HomeScreen({ navigation, route }) {
     //     };  
     //  dispath(fetchInvoice());
   }
-
+ 
   const getPaymentList = () => {
     let abortController = new AbortController();
     let aborted = abortController.signal.aborted; // true || false
     let data = async () => {
       let d = (await getSales());
       let b = (await getPayToday());
-
+ 
       aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
       if (aborted === false) {
-
-
+ 
+ 
         // console.log("Paytoday:", JSON.stringify([undefined])); // Array[[undefined]]
         if (JSON.stringify(b.R1) != '[[null]]' && JSON.stringify(b.R1) != '[null]') {
-
+ 
           dispath(paymentSlice.actions.addReportPayment(b.R1.reverse()));
           dispath(salesSlice.actions.addReportSales(d.reverse()));
         }
-
-
+ 
+ 
       }
     }
     data();
     return () => {
-
+ 
       abortController.abort();
     };
   }
@@ -266,7 +323,7 @@ function HomeScreen({ navigation, route }) {
   }, [statusList]);
 
   useEffect(() => {
-    //  console.log(orderList);
+
     localStorage.setItem(SALES_STORAGE, JSON.stringify(orderList));
   }, [orderList]);
 
@@ -278,9 +335,9 @@ function HomeScreen({ navigation, route }) {
 
   /*
   useEffect(() => {
-    //console.log(route.params?.post);
+   
     //getPaymentList();
-
+ 
   }, [route.params?.post]);
   */
 
@@ -295,13 +352,14 @@ function HomeScreen({ navigation, route }) {
   const wait = (timeout) => {
     reloadItem();
     reloadTable();
+
     //reloadOrderTable();
 
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
 
-  if (JSON.stringify(itemList) == '{}') {
+  if (JSON.stringify(statusList) == '[]') {
     return (
       // <View style={{flex:1,  alignItems: 'center',flexDirection:'row', justifyContent:'center',backgroundColor:COLORS.white}}>
       //   <Text>Loading...</Text>

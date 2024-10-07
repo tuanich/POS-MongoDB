@@ -22,12 +22,12 @@ export default function report5({ data, name }) {
 
 
       const d = data.map(item => item);
-      setYear(d[0][0].substring(4, 0))
-      //  console.log(d);
-      d.sort((a, b) => (b[0].localeCompare(a[0])));
+      setYear(d[0]._id.substring(6, 10))
+
+      d.sort((a, b) => (b._id.localeCompare(a._id)));
       d.map(item => {
-        sum += item[1];
-        total += item[2];
+        sum += item.quantity;
+        total += item.total;
       });
 
       setRdata(d);
@@ -39,7 +39,7 @@ export default function report5({ data, name }) {
     }, [data])
     const processData = useCallback(() => {
       //  const d=data.map((item,index)=>((index==0)?(item[2]=0):item));
-      //  console.log(data);
+
 
       if (typeof data == 'undefined' || data == []) {
         return [{ x: 0, y: 0 }];
@@ -47,17 +47,17 @@ export default function report5({ data, name }) {
       else {
         const d = data.map(item => item);
 
-        d.sort((b, a) => (b[0].localeCompare(a[0])));
+        d.sort((b, a) => (b._id.localeCompare(a._id)));
 
         return (d.map((item, index) => {
-          if (typeof item[0] == 'undefined' || typeof item[2] == 'undefined') return {
+          if (typeof item._id == 'undefined' || typeof item.total == 'undefined') return {
             x: '0',
             y: '0'
           }
           else {
             return {
-              x: item[0].substring(8) + "/" + item[0].substring(7, 5),
-              y: item[2],
+              x: item._id.substring(3, 5) + "/" + item._id.substring(0, 2),
+              y: item.total,
             }
           }
         }))
@@ -125,7 +125,7 @@ export default function report5({ data, name }) {
 
     function renderChart() {
       const dataChart = dataP;
-      // console.log(dataChart[0]['x']);
+
       var thang = dataChart[0]['x'].substring(2);
       return (
         <View style={{ flex: 1 }} key={name}>
@@ -179,24 +179,25 @@ export default function report5({ data, name }) {
           </View>
           <ScrollView>
             <View >
-              {rdata.map((e, index) =>
+              {rdata ? rdata.map((e, index) =>
 
               (<View style={styles.order} key={index + 50}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>
                 <View style={{ flex: 0.40, alignItems: 'flex-start', padding: 5 }}>
-                  <Text>{e[0]}</Text>
+                  <Text>{e._id}</Text>
                 </View>
                 <View style={{ flex: 0.15, alignItems: 'center', padding: 5 }}>
-                  <Text>{e[1]}</Text>
+                  <Text>{e.quantity}</Text>
                 </View>
                 <View style={{ flex: 0.32, alignItems: 'flex-end', padding: 5 }}>
-                  <Text>{convertNumber(e[2])}</Text>
+                  <Text>{convertNumber(e.total)}</Text>
                 </View>
               </View>)
 
-              )}
+              )
+                : null}
             </View>
 
             <View style={{ flexDirection: 'row', flex: 1 }}>
@@ -242,9 +243,9 @@ export default function report5({ data, name }) {
             viewMode == "chart" &&
             <View>
               {
-                // console.log(dataP)
+
                 (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
-                  //  console.log("-", dataP),
+
                   dataP[0].x != 'undefined' ? renderChart() : null
                 ]) : null
               }

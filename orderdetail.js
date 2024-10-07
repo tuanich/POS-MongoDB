@@ -17,8 +17,9 @@ import Dialog from "react-native-dialog";
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants';
 import RenderNavBar from './renderNavBar';
-import TabListMenu from './tablistMenu'
-
+import TabListMenu from './tablistMenu';
+import { insertPayment, updateTables } from './source/mongo';
+import { checkDate } from "./source/api";
 import 'localstorage-polyfill';
 
 
@@ -27,17 +28,21 @@ import 'localstorage-polyfill';
 
 //const STATUS_STORAGE="STATUS_KEY";
 const SALES_STORAGE = "SALES_KEY";
+const PAYMENT_STORAGE = "PAYMENT_KEY";
+const ITEM_STORAGE = "ITEM_KEY";
 
 export default function Orderdetail({ navigation, route }) {
   const [visible, setVisible] = useState(false);
   const flashMessage = useRef();
   const dispath = useDispatch();
 
+
   const [invoice, setInvoice] = useState(useSelector(invoicelistSelector));
 
-
+  const [paymentList, setPaymentList] = useState([]);
   const orderList = useSelector(orderlistSelector);
-  const itemList = useSelector(itemlistSelector);
+  //const itemList = useSelector(itemlistSelector);
+  //const [itemList, setItemList] = useState({});
   const [type, setType] = useState();
   const status = useSelector(statuslistSelector);
 
@@ -72,11 +77,9 @@ export default function Orderdetail({ navigation, route }) {
 
 
   useEffect(() => {
-    //  console.log("------");
 
     var type = route.params.type.item[1];
-    // console.log(orderList);
-    // console.log(`orderlist2:${orderList[type]}`);
+
     setType(type);
     const storagedSales = localStorage.getItem(SALES_STORAGE);
     if (storagedSales) {
@@ -84,7 +87,15 @@ export default function Orderdetail({ navigation, route }) {
 
       const data = JSON.parse(_storagedSales);
       setSales(data);
-      // console.log(data);
+
+    }
+    const storagedPayment = localStorage.getItem(PAYMENT_STORAGE);
+    if (storagedPayment) {
+      const _storagedPayment = storagedPayment.replace(/\'/g, '\"');
+
+      setPaymentList(JSON.parse(_storagedPayment));
+
+
     }
 
 
@@ -98,13 +109,8 @@ export default function Orderdetail({ navigation, route }) {
       setOrder(orderList[type]);
     }
 
-    //--Status  
-    // const storagedStatus = localStorage.getItem(STATUS_STORAGE);
-    // if (storagedStatus)
-    // {setStatus(JSON.parse(storagedStatus)); }
+    //--Get Item from storage
 
-
-    // setItem(itemList.Item);
     //getInvoice
     // TabletoOrder(type);
 
@@ -115,7 +121,7 @@ export default function Orderdetail({ navigation, route }) {
     var su = 0;
 
     order.forEach(orderline => {
-      su += parseInt(orderline.price) * parseInt(orderline.quan);
+      su += parseInt(orderline.price) * parseInt(orderline.quantity);
     });
     setSum(su);
   }, [order]);
@@ -149,71 +155,52 @@ export default function Orderdetail({ navigation, route }) {
       const ti = format(date, 'HH:mm:ss');
       date = format(date, 'MM/dd/yyyy, HH:mm:ss');
 
-      const time = { timeStamp: date };
-
-
-      //update status
-      //   dispath(addStatus((prevState) =>
-      //   prevState.map((status) =>
-      //     status[1] === type ? [ ...[status[1]=type,status[2]=1] ] : status
-      //   )
-      // ));
-
-      // const s =status.map(item=>{if (item[1]===type) {item[2]=1;}; return item});
-
-      // dispath(statusSlice.actions.addStatus(s));
-
-      dispath(statusSlice.actions.updateStatus({ type: type, status: 1, sumtotal: sum, timestamp: ti }));
-
-      var index = status.map(item => item[1]).indexOf(type);
-      //var index = status.findIndex(item => item[0] === type);
-      //console.log(index);
-      //console.log(status[0].indexOf(type));
-      updateStatus(index, 1, sum, ti);
-      //////////
-
+      const time = { timestamp: date };
       let data = sales;
-
       delete data[type];
-
       let obj = {};
-
-
-
-      // var options={hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'numeric',minute:'numeric',second:'numeric'};
-      //
-      // date = date.toLocaleString('en-US', options);
-
       let exportData = [];
-      // console.log(order);
+
 
       order.forEach(orderLine => {
-
         let orderUpdate;
-        if (typeof orderLine.timeStamp == 'undefined') { orderUpdate = Object.assign(orderLine, time); }
+        if (typeof orderLine.timestamp == 'undefined') { orderUpdate = Object.assign(orderLine, time); }
         else { orderUpdate = orderLine; }
-
         exportData.push(orderUpdate);
 
       })
 
-      setOrder(exportData);
-      obj[type] = exportData;
+        ;
+      if (updateTables(exportData, 1, type, sum, ti, invoice)) {
 
-      setSales({ ...obj, ...data });
-      // dispath(clearOrderAction());
-      dispath(orderSlice.actions.addOrder({ ...obj, ...data }));
-      // console.log({ ...obj, ...data });
+        setOrder(exportData);
+        obj[type] = exportData
+        setSales({ ...obj, ...data });
+        // dispath(clearOrderAction());
+        dispath(orderSlice.actions.addOrder({ ...obj, ...data }));
+        dispath(statusSlice.actions.updateStatus({ type: type, status: 1, sumtotal: sum, timestamp: ti }));
 
-      // dispath(orderSlice.table2Order(...obj, ...data));
 
-      updateTable(exportData, type, date, invoice);
-      flashMessage.current.showMessage({
-        message: "Đã lưu thành công",
-        description: "Lưu",
-        type: "success",
-        backgroundColor: "#517fa4",
-      });
+        // dispath(orderSlice.table2Order(...obj, ...data));
+
+        // updateTable(exportData, type, date, invoice);
+
+
+        flashMessage.current.showMessage({
+          message: "Đã lưu thành công",
+          description: "Lưu",
+          type: "success",
+          backgroundColor: "#517fa4",
+        });
+      }
+      else {
+        flashMessage.current.showMessage({
+          message: "Lỗi hệ thống",
+          description: "Lưu",
+          type: "danger",
+          backgroundColor: "#517fa4",
+        });
+      }
     }
 
     else {
@@ -224,29 +211,36 @@ export default function Orderdetail({ navigation, route }) {
       // ));
       // const s =status.map(item=>{if (item[1]===type) {item[2]=0;}; return item});
       // dispath(statusSlice.actions.addStatus(s));
-
-      dispath(statusSlice.actions.updateStatus({ type: type, status: 0, sumtotal: 0, timeStamp: 0 }));
-
-      var index = status.map(item => item[1]).indexOf(type);
-      updateStatus(index, 0, 0, 0);
-      if (typeof sales[type] != 'undefined') {
-        let data = sales;
-        delete data[type];
+      if (updateTables([], 0, type, 0, "")); //clear table
+      {
 
 
-        setSales({ ...data });
-        // dispath(clearOrderAction());
-        dispath(orderSlice.actions.addOrder({ ...data }));
-        clearTable(type);
-        flashMessage.current.showMessage({
-          message: "Đã lưu thành công",
-          description: "Lưu",
-          type: "success",
-          backgroundColor: "#517fa4",
-        });
+        //var index = status.map(item => item[1]).indexOf(type);
+
+        //  updateStatus(index, 0, 0, 0);
+
+        if (typeof sales[type] != 'undefined') {
+          let data = sales;
+          delete data[type];
+
+
+          setSales({ ...data });
+          // dispath(clearOrderAction());
+          dispath(orderSlice.actions.addOrder({ ...data }));
+          dispath(statusSlice.actions.updateStatus({ type: type, status: 0, sumtotal: 0, timestamp: 0 }));
+          //   clearTable(type);
+
+          flashMessage.current.showMessage({
+            message: "Đã lưu thành công",
+            description: "Lưu",
+            type: "success",
+            backgroundColor: "#517fa4",
+          });
+        }
       }
 
     }
+
   }, [order, sales, status, sum]);
 
   //--------Paymnet---
@@ -255,12 +249,14 @@ export default function Orderdetail({ navigation, route }) {
       <View style={styles.Msgbox}>
 
         <Dialog.Container visible={visible} contentStyle={{ borderRadius: 20, width: 390 }}>
+
           <Dialog.Title ><Text style={{ color: 'red', alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>{mapping.ban[type]}</Text></Dialog.Title>
+
           <Dialog.Description>
-            <Text style={{ color: 'black' }}> Sẽ được thanh toán.</Text> Sẽ được thanh toán.
+            <Text style={{ color: 'black' }}> Sẽ được thanh toán.</Text>
           </Dialog.Description>
-          <Dialog.Button label="Hủy" style={{ ...FONTS.body3 }} onPress={() => setVisible(false)} />
-          <Dialog.Button label="Ok" style={{ ...FONTS.body3, fontWeight: 'bold' }} onPress={() => payment()} />
+          <Dialog.Button label="Hủy" style={{ ...FONTS.body2, textTransform: 'none' }} onPress={() => setVisible(false)} />
+          <Dialog.Button label="OK" style={{ ...FONTS.body2, fontWeight: 'bold', textTransform: 'none' }} onPress={() => payment()} />
         </Dialog.Container>
       </View>
     );
@@ -280,47 +276,74 @@ export default function Orderdetail({ navigation, route }) {
    ]);*/
 
   const payment = useCallback(() => {
+    setVisible(false);
     if (order.length > 0) {
+      var date = new Date();
+      d = format(date, 'MM/dd/yyyy, HH:mm:ss');
+      let orderData = order.map(item => item);
 
-      const paym = pay(order, type, sum, invoice);
-      const s = paym['order'];
-      const p = paym['payment'];
-      const day = paym['day'];
-      dispath(salesSlice.actions.addSales(s));
-      dispath(paymentSlice.actions.addpayment(p));
+      if (JSON.stringify(order[0].timestamp) != undefined) {
+        d = checkDate(orderData[0].timestamp);
+      }
+      else {
 
-      // dispath(addStatus((prevState) =>
-      // prevState.map((status) =>
-      //   status[1] === type ? [ ...[status[1]=type,status[2]=0] ] : status
-      // )));
-      // const st =status.map(item=>{if (item[1]===type) {item[2]=0;}; return item});
-      // dispath(statusSlice.actions.addStatus(st));
-
-      dispath(statusSlice.actions.updateStatus({ type: type, status: 0, sumtotal: 0, timestamp: 0 }));
-
-      var index = status.map(item => item[1]).indexOf(type);
-      updateStatus(index, 0, 0, 0);
-      navigation.navigate("Printer", { day: { day }, order: { order }, type: { type }, sum: { sum } });
-      // setOrder([]);
-      if (typeof sales[type] != 'undefined') {
-        let data = sales;
-        delete data[type];
-        setSales({ ...data });
-        //dispath(clearOrderAction());
-        dispath(orderSlice.actions.addOrder({ ...data }));
+        orderData = orderData.map(item => {
+          return { ...item, timestamp: d };
+        });
       }
 
-      clearTable(type);
+      let payment = { timestamp: d, invoice: invoice, total: sum, type: type, paymentType: "", tip: "", sales: orderData };
+      const exportData = {
+        payment: payment,
+        sale: orderData
+      }
 
-      dispath(invoiceSlice.actions.addinvoice(generateInvoiceNumber()));
-      flashMessage.current.showMessage({
-        message: "Đã thanh toán thành công",
-        description: "Thanh toán",
-        type: "success",
-        backgroundColor: "#517fa4",
-      });
-      setOrder([]);
-      setVisible(false);
+      const Pay = async () => {
+        let getPay = await insertPayment(exportData);
+        if (getPay) {
+
+
+          let paymentListNEW = paymentList;
+          paymentListNEW.push(payment);
+          localStorage.setItem(PAYMENT_STORAGE, JSON.stringify(paymentListNEW));
+          updateTables([], 0, type, 0, "");
+          //  dispath(salesSlice.actions.addSales(exportData.sale));
+
+          //   
+          dispath(statusSlice.actions.updateStatus({ type: type, status: 0, sumtotal: 0, timestamp: 0 }));
+
+          if (typeof sales[type] != 'undefined') {
+            let data = sales;
+            delete data[type];
+            setSales({ ...data });
+            //dispath(clearOrderAction());
+            dispath(orderSlice.actions.addOrder({ ...data }));
+          }
+
+          //   clearTable(type);
+
+          dispath(invoiceSlice.actions.addinvoice(generateInvoiceNumber()));
+          flashMessage.current.showMessage({
+            message: "Đã thanh toán thành công",
+            description: "Thanh toán",
+            type: "success",
+            backgroundColor: "#517fa4",
+          });
+          setOrder([]);
+          navigation.navigate("Printer", { day: { d }, order: { order }, type: { type }, sum: { sum } });
+        }
+        else {
+          flashMessage.current.showMessage({
+            message: "Lỗi hệ thống",
+            description: "Thanh toán",
+            type: "danger",
+            backgroundColor: "#517fa4",
+          });
+        }
+      }
+
+      Pay();
+
     }
 
   }, [order, sales, status, sum])
@@ -342,11 +365,11 @@ export default function Orderdetail({ navigation, route }) {
 
   //-----plus quantity------
   const plus = useCallback((index) => {
-    var sl = parseInt(order[index].quan) + 1;
+    var sl = parseInt(order[index].quantity) + 1;
 
     setOrder((prevState) =>
       prevState.map((order, i) =>
-        i === index ? { ...order, quan: sl } : order
+        i === index ? { ...order, quantity: sl } : order
       ))
 
     // setSum(sum - (order[index].price * order[index].quan));
@@ -356,14 +379,14 @@ export default function Orderdetail({ navigation, route }) {
 
   //-----minus quantity------
   const minus = useCallback((index) => {
-    var sl = parseInt(order[index].quan) - 1;
+    var sl = parseInt(order[index].quantity) - 1;
 
 
     if (sl == 0) deleOrder(index);
     else {
       setOrder((prevState) =>
         prevState.map((order, i) =>
-          i === index ? { ...order, quan: sl } : order
+          i === index ? { ...order, quantity: sl } : order
         ))
     }
 
@@ -384,7 +407,7 @@ export default function Orderdetail({ navigation, route }) {
 
         if (orderline.description == items) {
 
-          quan = parseInt(orderline.quan) + 1;
+          quan = parseInt(orderline.quantity) + 1;
           flag = true;
         }
       });
@@ -392,7 +415,7 @@ export default function Orderdetail({ navigation, route }) {
 
         setOrder((prevState) =>
           prevState.map((order) =>
-            order.description === items ? { ...order, quan: quan, price: price } : order
+            order.description === items ? { ...order, quantity: quan } : order
           ));
 
       }
@@ -404,7 +427,7 @@ export default function Orderdetail({ navigation, route }) {
 
     if (flag == false) {
 
-      const obj = { sku: sku, description: items, quan: quan, price: price };
+      const obj = { sku: sku.toString(), invoice: invoice, description: items, quantity: quan, price: price, type: type };
       //setOrder([obj,...order,]);
       setOrder([...order, obj,]);
 
@@ -415,49 +438,42 @@ export default function Orderdetail({ navigation, route }) {
 
 
 
-  if (itemList == null) {
 
-    return (
-      <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
-        <Text>Loading...</Text>
-      </View>)
-  }
-  else {
-    return (
+  return (
 
-      <View style={{ flex: 1, }}>
+    <View style={{ flex: 1, }}>
 
-        {/* Nav bar section */}
-        {/*renderNavBar()*/}
-        <RenderNavBar save={save} back={back} paymentAlert={paymentAlert} sum={sum} type={type}></RenderNavBar>
-        {renderMsgbox()}
-        <View style={styles.main}>
+      {/* Nav bar section */}
+      {/*renderNavBar()*/}
+      <RenderNavBar save={save} back={back} paymentAlert={paymentAlert} sum={sum} type={type}></RenderNavBar>
+      {renderMsgbox()}
+      <View style={styles.main}>
 
-          <View style={styles.orderContent}>
-            <View style={[styles.viewOrder, { flex: 0.6 }]}><Text style={styles.menuOrder}>Món ăn</Text></View>
-            <View style={[styles.viewOrder, { flex: 0.1 }]} ><Text style={styles.menuOrder}>SL</Text></View>
+        <View style={styles.orderContent}>
+          <View style={[styles.viewOrder, { flex: 0.6 }]}><Text style={styles.menuOrder}>Món ăn</Text></View>
+          <View style={[styles.viewOrder, { flex: 0.1 }]} ><Text style={styles.menuOrder}>SL</Text></View>
 
-            <View style={[styles.viewOrder, { flex: 0.3 }]} ><Text style={styles.menuOrder}>TTiền</Text></View>
-          </View>
-          <View style={styles.order}>
-            <Order order={order} deleOrder={deleOrder} plus={plus} minus={minus} />
-          </View>
-
-
-
-          <TabListMenu itemList={itemList} addOrder={addOrder} />
-
-
-
-          <FlashMessage ref={flashMessage} />
-
+          <View style={[styles.viewOrder, { flex: 0.3 }]} ><Text style={styles.menuOrder}>TTiền</Text></View>
+        </View>
+        <View style={styles.order}>
+          <Order order={order} deleOrder={deleOrder} plus={plus} minus={minus} />
         </View>
 
 
+
+        <TabListMenu addOrder={addOrder} />
+
+
+
+        <FlashMessage ref={flashMessage} />
+
       </View>
 
-    );
-  }
+
+    </View>
+
+  );
+
 }
 
 const styles = StyleSheet.create({

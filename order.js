@@ -43,7 +43,7 @@ export default function Order({ order, deleOrder, plus, minus }) {
 
             <View style={{ flex: 0.05, alignItems: 'center', padding: 4 }}>
 
-              <Text>{e.item.quan}</Text>
+              <Text>{e.item.quantity}</Text>
             </View>
             <TouchableOpacity onPress={() => plus(e.index)}>
               <View style={{ alignItems: 'flex-end', padding: 4 }}>
@@ -54,7 +54,7 @@ export default function Order({ order, deleOrder, plus, minus }) {
 
 
             <View style={{ flex: 0.25, alignItems: 'flex-end', padding: 4 }}>
-              <Text>{convertNumber(parseInt(e.item.price) * parseInt(e.item.quan))}</Text>
+              <Text>{convertNumber(parseInt(e.item.price) * parseInt(e.item.quantity))}</Text>
             </View>
             {/* <View style={{flex:0.175,alignItems:'flex-end',padding:4}}>
                      <Text>{convertNumber(e.item.price*e.item.quan)}</Text> 

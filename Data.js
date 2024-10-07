@@ -1,27 +1,31 @@
 import { StyleSheet, Text, ScrollView, TouchableOpacity, View, } from "react-native";
 import { convertNumber } from "./source/api";
 import { COLORS, FONTS, SIZES, icons, } from './source/constants';
+import { useState } from "react";
 export default function Data({ item, addOrder }) {
 
-  if (typeof item != 'undefined') {
-    return (
-      <ScrollView>
-        {
-          item.map((files, index) => (
-            <TouchableOpacity key={index} onPress={() => addOrder(files[0], files[1], files[2])}>
-              <View style={styles.button}>
-                <View style={{ flex: 1.5, alignItems: 'flex-start' }}>
-                  <Text>{index + 1}. {files[1]}</Text>
-                </View>
-                <View style={{ flex: 0.5, alignItems: 'flex-end' }}>
-                  <Text>{convertNumber(files[2])}</Text>
-                </View>
+
+
+
+  return (
+    <ScrollView>
+      {
+        item ? item.map((files, index) => (
+          <TouchableOpacity key={index} onPress={() => addOrder(files.sku, files.description, files.price)}>
+            <View style={styles.button}>
+              <View style={{ flex: 1.5, alignItems: 'flex-start' }}>
+                <Text>{index + 1}. {files.description}</Text>
               </View>
-            </TouchableOpacity>
-          ))}
-      </ScrollView>
-    );
-  }
+              <View style={{ flex: 0.5, alignItems: 'flex-end' }}>
+                <Text>{convertNumber(files.price)}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))
+          : null}
+    </ScrollView>
+  );
+
 };
 
 const styles = StyleSheet.create({

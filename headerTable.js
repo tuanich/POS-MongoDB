@@ -20,7 +20,7 @@ let intervalID = 5000;
 
 
 function Headertable({ navigation, route }) {
-  //  console.log(navigation.navigate.n);
+
   const [tab, setTab] = useState(1);
 
 

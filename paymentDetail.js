@@ -9,14 +9,14 @@ export default function paymentDetail({ item }) {
         <View style={styles.order}>
             <View style={{ flex: 0.74, alignItems: 'flex-start', padding: 4 }}>
 
-                <Text>-{item[3]}</Text>
+                <Text>-{item.description}</Text>
             </View>
             <View style={{ flex: 0.05, alignItems: 'center', padding: 4 }}>
-                <Text>{item[4]}</Text>
+                <Text>{item.quantity}</Text>
             </View>
 
             <View style={{ flex: 0.22, alignItems: 'flex-end', padding: 4 }}>
-                <Text>{convertNumber(parseInt(item[5]) * parseInt(item[4]))}</Text>
+                <Text>{convertNumber(parseInt(item.quantity) * parseInt(item.price))}</Text>
             </View>
             {/* <View style={{flex:0.175,alignItems:'flex-end',padding:4}}>
                   <Text>{convertNumber(e.item.price*e.item.quan)}</Text> 

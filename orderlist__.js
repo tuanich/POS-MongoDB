@@ -16,7 +16,7 @@ import { faClock, faUsd } from '@fortawesome/free-solid-svg-icons';
 
 
 export function Headertable({ navigation, route }) {
-  //console.log(navigation.navigate.n);
+
   const [tab, setTab] = useState(1);
 
 
@@ -93,7 +93,7 @@ function Orderlist({ navigation, route }) {
   const [loading, setLoading] = useState(false);
   const statusList = useSelector(statuslistSelector);
 
-  // console.log(route.params);
+
 
 
 
@@ -273,7 +273,7 @@ function Orderlist({ navigation, route }) {
     </View> */}
         <View style={styles.container}>
           <View style={styles.box}>
-            {list.map((item, index) =>
+            {list ? list.map((item, index) =>
 
             (
               <TouchableOpacity style={item[2] === 0 ? styles.button : styles.button1} key={index} onPress={() => clickTable(item)} >
@@ -287,7 +287,7 @@ function Orderlist({ navigation, route }) {
 
             )
 
-            }
+              : null}
           </View>
 
         </View>

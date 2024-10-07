@@ -11,7 +11,7 @@ import mapping from "./mapping.json";
 export default function print({ navigation, route }) {
 
     const [selectedPrinter, setSelectedPrinter] = React.useState();
-    //  console.log(route.params.day.day);
+
     const day = route.params.day.day;
     const type = route.params.type.type;
     const sum = route.params.sum.sum;
@@ -144,8 +144,8 @@ export default function print({ navigation, route }) {
             return (
                 `<tr>
                 <td class="description">-${orderLine.description}</td>
-                <td class="quantity">${orderLine.quan}</td>
-                <td class="subtotal">${convertNumber(orderLine.quan * orderLine.price)}</td>
+                <td class="quantity">${orderLine.quantity}</td>
+                <td class="subtotal">${convertNumber(orderLine.quantity * orderLine.price)}</td>
                 </tr>`  )
         }) +
         `</tbody>

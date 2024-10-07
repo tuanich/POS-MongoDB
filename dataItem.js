@@ -3,38 +3,36 @@ import { Feather } from '@expo/vector-icons';
 import { convertNumber } from "./source/api";
 import { COLORS, FONTS, SIZES, icons, } from './source/constants';
 export default function DataItem({ item, editItem, delItem }) {
-
-  if (typeof item != 'undefined') {
-
-    return (
-      <ScrollView>
-        {
-          item.map((files, index) => (
-            <View style={styles.button} key={files[0]}>
-              <View style={{ flex: 2.8 }}>
-                <TouchableOpacity onPress={() => editItem(index)}>
-                  <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1.5, alignItems: 'flex-start' }}>
-                      <Text>{index + 1}. {files[1]}</Text>
-                    </View>
-                    <View style={{ flex: 0.3, }}>
-                      <Text>{convertNumber(files[2])}</Text>
-                    </View>
+  return (
+    <ScrollView>
+      {item ?
+        item.map((files, index) => (
+          <View style={styles.button} key={files._id}>
+            <View style={{ flex: 2.8 }}>
+              <TouchableOpacity onPress={() => editItem(index)}>
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={{ flex: 1.5, alignItems: 'flex-start' }}>
+                    <Text>{index + 1}. {files.description}</Text>
                   </View>
-                </TouchableOpacity>
-              </View>
-              <View style={{ flex: 0., padding: 4 }}>
-                <TouchableOpacity onPress={() => delItem(index, files[1])}>
-                  <View>
-
-                    <Feather name="delete" size={24} color="black" /></View>
-                </TouchableOpacity>
-              </View>
+                  <View style={{ flex: 0.3, }}>
+                    <Text>{convertNumber(files.price)}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
             </View>
-          ))}
-      </ScrollView>
-    );
-  }
+            <View style={{ flex: 0., padding: 4 }}>
+              <TouchableOpacity onPress={() => delItem(index, files.description)}>
+                <View>
+
+                  <Feather name="delete" size={24} color="black" /></View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))
+        : null}
+    </ScrollView>
+  );
+
 };
 
 const styles = StyleSheet.create({

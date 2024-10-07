@@ -9,31 +9,34 @@ import Input from "./input";
 import React, { useEffect, useState, useRef } from "react";
 import { itemlistSelector } from './source/redux/selector';
 import FlashMessage from "react-native-flash-message";
-
+import { updateItems } from "./source/mongo";
 import 'localstorage-polyfill';
+
 
 export default function ItemDetail({ navigation, route }) {
   const flashMessage = useRef();
   const dispath = useDispatch();
-  const [itemList, setItemList] = useState(useSelector(itemlistSelector));
+  const [itemList, setItemList] = useState({});
   const [values, setValues] = useState();
   const [show, setShow] = useState();
   const [error, setError] = useState();
   const [title, setTitle] = useState([]);
   const [savebtn, setSavebtn] = useState(1);
   const ITEM_STORAGE = "ITEM_KEY";
+
+
   useEffect(() => {
-    //console.log(route.params.params.sku);
+
     var ti;
     if (route.params.params.type == 1) {
-      ti = ['Món ăn', 1, "Item"];
+      ti = ['Món ăn', 1, "Items"];
     }
     else {
       if (route.params.params.type == 2) {
-        ti = ['Thức uống', 2, "Drink"];
+        ti = ['Thức uống', 2, "Drinks"];
       }
       else
-        ti = ['Các món khác', 3, "Other"];
+        ti = ['Các món khác', 3, "Others"];
     }
     //  const ti = [];
     setTitle(ti);
@@ -41,7 +44,7 @@ export default function ItemDetail({ navigation, route }) {
   }, [navigation]);
 
   useEffect(() => {
-    // console.log(route.params);
+
     var s = parseInt(route.params.params.sku)
     if (route.params.params.add == 1) {
       s = s + 1;
@@ -53,6 +56,13 @@ export default function ItemDetail({ navigation, route }) {
       setValues({ sku: s, description: route.params.params.description, price: route.params.params.price });
     }
 
+    const storagedItem = localStorage.getItem(ITEM_STORAGE);
+    if (storagedItem) {
+      const _storagedItem = storagedItem.replace(/\'/g, '\"');
+
+      setItemList(JSON.parse(_storagedItem));
+      //setItem(JSON.parse(_storagedItem).Item);
+    }
 
 
   }, [])
@@ -81,35 +91,38 @@ export default function ItemDetail({ navigation, route }) {
 
         if (route.params.params.add == 1) { //Add new
 
-          d2.push([sku, description, parseInt(price), 0, ""]);
-          //    console.log(d2);
+          d2.push({ _id: sku, sku: sku, description: description, price: parseInt(price), tax: 0, image: "" });
+
+
         }
         else { //Edit
+
           d2 = d2.map(item => {
-            if (item[0] == sku) {
-              item = [];
-              item[0] = sku;
-              item[1] = description;
-              item[2] = parseInt(price);
-              item[3] = 0;
-              item[4] = "";
-              // console.log(item);
-              return item;
+            if (item.sku == sku) {
+
+              item.sku = sku;
+              item.description = description;
+              item.price = parseInt(price);
+              item.tax = 0;
+              item.image = "";
+
+
             }
             return item;
           })
-          //  console.log("d2:", d2);
-        }
 
+
+        }
+        updateItems(d2, type)
         delete d[type];
         let obj = {};
         obj[type] = d2
-        ///console.log(obj);
+
         d = { ...d, ...obj };
 
-        // console.log(d);
+
         localStorage.setItem(ITEM_STORAGE, JSON.stringify(d));
-        dispath(ItemSlice.actions.addItem(d));
+        //  dispath(ItemSlice.actions.addItem(d));
         flashMessage.current.showMessage({
           message: "Đã lưu thành công",
           description: "Lưu",
@@ -118,7 +131,10 @@ export default function ItemDetail({ navigation, route }) {
         });
         setSavebtn(0);
 
-        //  navigation.navigate('ItemList', { params: { tab: route.params.params.type } })
+        //navigation.navigate("ItemList", { params: { tab: route.params.params.type }, datafilter: d2 ,post:true})
+
+        route.params.onBack(d2);
+        navigation.goBack();
       }
       else {
         flashMessage.current.showMessage({
@@ -154,8 +170,7 @@ export default function ItemDetail({ navigation, route }) {
 
               style={{ flex: 4 }}
             />
-            {//console.log(values?.sku)
-            }
+
             <View style={{ paddingLeft: 8 }}></View>
           </View>
           <Text></Text>
@@ -179,8 +194,7 @@ export default function ItemDetail({ navigation, route }) {
           }}
           errorMessage={(error?.description)}
         />
-        {//console.log(values)
-        }
+
         <Text></Text>
 
         <Input
@@ -198,8 +212,7 @@ export default function ItemDetail({ navigation, route }) {
           }}
           errorMessage={(error?.price)}
         />
-        {//console.log(values?.price)
-        }
+
         <Text></Text>
 
 

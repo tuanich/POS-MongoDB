@@ -8,11 +8,13 @@ import Dialog from "react-native-dialog";
 import DataItem from './dataItem';
 import 'localstorage-polyfill';
 import { COLORS, FONTS, SIZES, icons, } from './source/constants';
+import { updateItems } from './source/mongo';
+
 
 export default function ({ navigation, route }) {
   const [visible, setVisible] = useState(false);
   const [record, setRecord] = useState({});
-  const itemList = useSelector(itemlistSelector);
+  //const itemList = useSelector(itemlistSelector);
   const dispath = useDispatch();
   const [filter, setFilter] = useState('');
   const [tab, setTab] = useState(route.params?.tab);
@@ -23,33 +25,44 @@ export default function ({ navigation, route }) {
   const [sku, setSku] = useState();
   const ITEM_STORAGE = "ITEM_KEY";
 
+  const [itemList, setItemList] = useState({});
+
+  useEffect(() => {
+    const storagedItem = localStorage.getItem(ITEM_STORAGE);
+    if (storagedItem) {
+      const _storagedItem = storagedItem.replace(/\'/g, '\"');
+
+      setItemList(JSON.parse(_storagedItem));
+      setItem(JSON.parse(_storagedItem).Item);
+    }
+
+  }, [])
+
 
   useEffect(() => {
 
     if (tab == 1) {
-      // console.log("1");
+
       setTab(1);
-      setTabname('Item');
-      setItem(itemList.Item);
-      setDatafilter(itemList.Item);
-
-
+      setTabname('Items');
+      setItem(itemList.Items);
+      setDatafilter(itemList.Items);
 
     }
     else {
       if (tab == 2) {
-        //  console.log("2");
+
         setTab(2);
-        setTabname('Drink');
-        setItem(itemList.Drink);
-        setDatafilter(itemList.Drink);
+        setTabname('Drinks');
+        setItem(itemList.Drinks);
+        setDatafilter(itemList.Drinks);
       }
       else {
-        //        console.log("3");
+
         setTab(3);
-        setTabname('Other');
-        setItem(itemList.Other);
-        setDatafilter(itemList.Other);
+        setTabname('Others');
+        setItem(itemList.Others);
+        setDatafilter(itemList.Others);
       }
     }
 
@@ -62,29 +75,34 @@ export default function ({ navigation, route }) {
 
   const editItem = useCallback((index) => {
     let data = datafilter.filter((item, i) => i == index);
-    // console.log(data, index);
 
 
     navigation.navigate('Item', {
       params: {
         type: tab,
-        sku: data[0][0],
-        description: data[0][1],
-        price: data[0][2],
+        sku: data[0].sku,
+        description: data[0].description,
+        price: data[0].price,
         add: 0
-      }
+      },
+      onBack
     })
   }, [datafilter, tab])
+
+  const onBack = (data) => {
+    setDatafilter(data);
+  }
 
   const add = () => {
 
     // SKU maximun in Items
-    // console.log(tab);
+
     let data = datafilter.map(item => item);
-    data.sort((a, b) => parseInt(b[0]) - parseInt(a[0]));
-    setSku(data[0][0]);
-    // console.log(data[0][0]);
-    navigation.navigate('Item', { params: { type: tab, sku: data[0][0], add: 1 } })
+    data.sort((a, b) => parseInt(b.sku) - parseInt(a.sku));
+    setSku(data[0].sku);
+
+    navigation.navigate('Item', { params: { type: tab, sku: data[0].sku, add: 1 }, onBack })
+
   };
 
   const renderMsgbox = () => {
@@ -92,12 +110,14 @@ export default function ({ navigation, route }) {
       <View style={styles.Msgbox}>
 
         <Dialog.Container visible={visible} contentStyle={{ borderRadius: 20, width: 390 }}>
-          <Dialog.Title><Text style={{ color: 'black' }}>Xóa '</Text><Text style={{ color: 'red' }}>{record.description}</Text><Text>'</Text></Dialog.Title>
+
+          <Dialog.Title><Text style={{ color: 'black' }}>Xóa '</Text><Text style={{ color: 'red' }}>{record.description}</Text><Text style={{ color: 'black' }}>'</Text></Dialog.Title>
+
           <Dialog.Description>
             <Text style={{ color: 'black' }}>Bạn có chắc muốn xóa không ?.</Text>
           </Dialog.Description>
-          <Dialog.Button label="Hủy" style={{ ...FONTS.body3 }} onPress={() => setVisible(false)} />
-          <Dialog.Button label="Xóa" style={{ ...FONTS.body3, fontWeight: 'bold' }} onPress={() => actionDel(record.index)} />
+          <Dialog.Button label="Hủy" style={{ ...FONTS.body2, textTransform: 'none' }} onPress={() => setVisible(false)} />
+          <Dialog.Button label="Xóa" style={{ ...FONTS.body2, fontWeight: 'bold', textTransform: 'none' }} onPress={() => actionDel(record.index)} />
         </Dialog.Container>
       </View>
     );
@@ -115,20 +135,22 @@ export default function ({ navigation, route }) {
     setItem(data);
     let d = { ...itemList };
     delete d[tabname];
-    //  console.log("d1:", d);
+
     let obj = {};
     obj[tabname] = data;
-    //  console.log("O:", obj);
+
     d = { ...d, ...obj };
-    //  console.log("d2", d);
+
+    updateItems(data, tabname);
     localStorage.setItem(ITEM_STORAGE, JSON.stringify(d));
-    dispath(ItemSlice.actions.addItem(d));
+    setItemList(d);
+    //  dispath(ItemSlice.actions.addItem(d));
     setVisible(false);
   }, [datafilter, IT])
 
   const search = (text) => {
 
-    // console.log(IT);
+
 
     setFilter(text);
 
@@ -169,14 +191,13 @@ export default function ({ navigation, route }) {
         </View>
 
 
-        <ScrollView style={{ height: 720 }} refreshControl={
+        <ScrollView style={{ height: 720 }} key={tabname} refreshControl={
           <RefreshControl
 
             title='loading'
           />}>
-
+          { }
           <DataItem item={datafilter} editItem={editItem} delItem={delItem} />
-
         </ScrollView>
 
       </View>

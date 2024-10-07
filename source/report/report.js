@@ -1,8 +1,8 @@
 import { Text, View, ScrollView, RefreshControl } from 'react-native';
 import { useEffect, useState, useCallback } from 'react';
-import { getReport, getPayment } from '../api';
+//import { getReport, getPayment } from '../api';
 import { useSelector, useDispatch } from 'react-redux';
-import { rPaymentlistSelector, rSaleslistSelector, report8ListSelector } from '../../source/redux/selector';
+import { rPaymentlistSelector, rSaleslistSelector, report8ListSelector, reportListSelector } from '../../source/redux/selector';
 //import {addrPayment,addrSales,addReport8} from '../../source/redux/action';
 import Report1 from './report1';
 import Report2 from './report2';
@@ -21,9 +21,11 @@ export default function report1({ navigation, route }) {
         //const [refreshing, setRefreshing] = useState(false);
         //const dispath =useDispatch();
         // const [key, setKey] = useState(Crypto.randomUUID());
-        const report = useSelector(rSaleslistSelector);
-        const rPayment = useSelector(rPaymentlistSelector);
-        const report8 = useSelector(report8ListSelector);
+        //   const report = useSelector(rSaleslistSelector);
+        //  const rPayment = useSelector(rPaymentlistSelector);
+        //const report8 = useSelector(report8ListSelector);
+
+        const report = useSelector(reportListSelector);
 
         useEffect(() => {
 
@@ -35,28 +37,29 @@ export default function report1({ navigation, route }) {
 
         function renderSwitch(c) {
                 switch (c) {
-                        case 0: return (<View style={{ flex: 1 }}>{ }<Report1 data={rPayment} name={"A"} /></View>);
+                        case 0: return (<View style={{ flex: 1 }}>{ }<Report1 data={report.r} name={"A"} /></View>);
                                 break;
-                        case 1: return (<View style={{ flex: 1 }}>{ }<Report2 data={report.R1.r1} name={"B"} /></View>);
+                        case 1: return (<View style={{ flex: 1 }}>{ }<Report2 data={report.r1} name={"B"} /></View>);
                                 break;
-                        case 2: return (<View style={{ flex: 1 }}>{ }<Report3 data={report.R1.r2} name={"C"} /></View>);
+                        case 2: return (<View style={{ flex: 1 }}>{ }<Report3 data={report.r2} name={"C"} /></View>);
                                 break;
-                        case 3: return (<View style={{ flex: 1 }}>{ }<Report4 data={report.R1.r3} name={"D"} /></View>);
+                        case 3: return (<View style={{ flex: 1 }}>{ }<Report4 data={report.r3} name={"D"} /></View>);
                                 break;
-                        case 4: return (<View style={{ flex: 1 }}><Report5 data={report.R2.r1} name={"E"} /></View>);
+                        case 4: return (<View style={{ flex: 1 }}><Report5 data={report.r4} name={"E"} /></View>);
                                 break;
-                        case 5: return (<View style={{ flex: 1 }}><Report6 data={report.R2.r2} name={"F"} /></View>);
+                        case 5: return (<View style={{ flex: 1 }}><Report6 data={report.r5} name={"F"} /></View>);
                                 break;
-                        case 6: return (<View style={{ flex: 1 }}><Report7 data={report.R1.r4} name={"G"} /></View>);
+                        case 6: return (<View style={{ flex: 1 }}><Report7 data={report.r6} name={"G"} /></View>);
                                 break;
-                        case 7: return (<View style={{ flex: 1 }} ><Report8 data={report8} name={"H"} /></View>);
+                        case 7: return (<View style={{ flex: 1 }} ><Report8 data={report.r7} name={"H"} /></View>);
                                 break;
 
                         default: break;
                 }
         }
 
-        if (typeof report == 'undefined' || typeof rPayment == 'undefined' || report == null || rPayment == null || report == '' || rPayment == '') {
+        if (typeof report == 'undefined' || report == null || report == '') {
+
                 return (
 
                         <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
@@ -65,6 +68,7 @@ export default function report1({ navigation, route }) {
                 );
         }
         else {
+
                 return (
                         //  <ScrollView contentContainerStyle={{ flex: 1, backgroundColor:'white'}} refreshControl={
                         //        <RefreshControl
@@ -75,6 +79,7 @@ export default function report1({ navigation, route }) {
                         //         color='#fff'
                         //         tintColor='#fff'
                         //       />}>
+
                         <View style={{ flex: 1 }}>{renderSwitch(route.params.i)}</View>
 
 

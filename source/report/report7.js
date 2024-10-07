@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, FlatList, ScrollView, Image, Platform, TouchableOpacity } from 'react-native';
-import { convertNumber, getReport, getReport67 } from '../api';
+import { convertNumber, getReport, } from '../api';
+import { getReport6 } from '../mongo';
 import SelectDropdown from 'react-native-select-dropdown';
 import { VictoryPie } from 'victory-native';
 import { Svg } from 'react-native-svg';
@@ -43,35 +44,38 @@ export default function report7({ data, name }) {
         }, [data])
 
         const processData = useCallback((d) => {
+            if (JSON.stringify(d) != '[]') {
 
-            var sum = 0;
-            var total = 0;
-            //    d = d.filter((item,i)=>i!==0);
-            d = d.map(item => item);
-            d.map(item => {
-                sum += item[2];
-                total += item[3];
-            });
-            d.sort((a, b) => parseInt(b[2]) - parseInt(a[2]));
-            setSelectCategoryByName(d[0][1]);
+                var sum = 0;
+                var total = 0;
+                //    d = d.filter((item,i)=>i!==0);
+                d = d.map(item => item);
+                d.map(item => {
+                    sum += item.quantity;
+                    total += item.total;
+                });
+                d.sort((a, b) => parseInt(b.quantity) - parseInt(a.quantity));
+                setSelectCategoryByName(d[0]._id);
 
 
-            //  let total = dataOnline.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)
-            //  let count = dataOnline.reduce((a, b) => a + (parseInt(b[1]) || 0), 0)
-            let dataChart = d.map((item, index) => {
-                let percent = (item[2] / sum * 100).toFixed(0);
-                return {
-                    label: `${percent}%`,
-                    y: Number(item[2]),
-                    Count: item[2],
-                    color: colorScales[index],
-                    name: item[1],
-                    id: index,
-                    subTotal: item[3],
-                }
-            })
-            //   console.log(dataChart);
-            return { sum: sum, total: total, data: dataChart };
+                //  let total = dataOnline.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)
+                //  let count = dataOnline.reduce((a, b) => a + (parseInt(b[1]) || 0), 0)
+                let dataChart = d.map((item, index) => {
+                    let percent = (item.quantity / sum * 100).toFixed(0);
+                    return {
+                        label: `${percent}%`,
+                        y: Number(item.quantity),
+                        Count: item.quantity,
+                        color: colorScales[index],
+                        name: item.description,
+                        id: index,
+                        subTotal: item.total,
+                    }
+                })
+
+                return { sum: sum, total: total, data: dataChart };
+            }
+            else return []
         }, [data]);
 
         const Report = useCallback((index, y) => {
@@ -87,7 +91,7 @@ export default function report7({ data, name }) {
                 let abortController = new AbortController();
                 let aborted = abortController.signal.aborted; // true || false
                 let data = async () => {
-                    let d = (await getReport67(index, y, 1));
+                    let d = (await getReport6(index, y));
 
                     aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
                     if (aborted === false) {
@@ -116,7 +120,7 @@ export default function report7({ data, name }) {
                 <SelectDropdown
                     data={month}
                     onSelect={(selectedItem, index) => {
-                        //console.log(selectedItem, index)
+
                         Report(index, year);
                     }}
                     buttonTextAfterSelection={(selectedItem, index) => {
@@ -309,7 +313,7 @@ export default function report7({ data, name }) {
 
 
             return (
-                <View style={{ padding: SIZES.padding }} key={name}>
+                <View style={{ padding: SIZES.padding }} key={Crypto.randomUUID() + "-" + name}>
                     <RenderItem data={data} setSelectCategoryByName={setSelectCategoryByName} selectedCategory={selectedCategory} name={name} />
                 </View>
 
@@ -332,19 +336,19 @@ export default function report7({ data, name }) {
                     </View>
                     <ScrollView>
                         <View>
-                            {rdata.length > 0 ? rdata.map((e, index) =>
+                            {rdata ? rdata.map((e, index) =>
                             (<View style={styles.order} key={index + 70}>
                                 <View style={{ flex: 0.11, alignItems: 'center', padding: 5 }}>
                                     <Text>{index + 1}</Text>
                                 </View>
                                 <View style={{ flex: 0.45, alignItems: 'flex-start', padding: 5 }}>
-                                    <Text>{e[1]}</Text>
+                                    <Text>{e.description}</Text>
                                 </View>
                                 <View style={{ flex: 0.15, alignItems: 'center', padding: 5 }}>
-                                    <Text>{e[2]}</Text>
+                                    <Text>{e.quantity}</Text>
                                 </View>
                                 <View style={{ flex: 0.31, alignItems: 'flex-end', padding: 5 }}>
-                                    <Text>{convertNumber(e[3])}</Text>
+                                    <Text>{convertNumber(e.total)}</Text>
                                 </View>
                             </View>)) : (<View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
                                 <Text>No data...</Text>
@@ -391,7 +395,10 @@ export default function report7({ data, name }) {
                     {
                         viewMode == "chart" &&
                         <View>
-                            {renderChart()}
+                            {(typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+
+                                dataP[0].Count != 0 ? renderChart() : null
+                            ]) : null}
                             {
 
                                 (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([

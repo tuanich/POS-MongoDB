@@ -6,7 +6,7 @@ import { generateInvoiceNumber } from './source/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { table2Order, getStatus } from './source/api';
 import { url } from "@env";
-import mapping from "./mapping.json";
+
 //import {addStatus,table2Order,addOrderAction} from './source/redux/action';
 //import statusSlice, { fetchCheckStatus } from './source/redux/statusSlice';
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
@@ -31,7 +31,7 @@ function Tablelist({ navigation, route }) {
 
 
   const orderLists = useSelector(orderlistSelector);
-  //console.log("orderlist0:", orderLists);
+
 
 
 
@@ -43,7 +43,7 @@ function Tablelist({ navigation, route }) {
 
 
   useEffect(() => {
-    //console.log( route.params);
+
 
     if (tab == 1)
       setList(statusList.filter(item => item[0] < 200));
@@ -73,7 +73,7 @@ function Tablelist({ navigation, route }) {
 
 
         dispath(statusSlice.actions.addStatus(d));
-        // console.log(d);
+
         reloadOrderTable(d);
 
       }
@@ -95,11 +95,11 @@ function Tablelist({ navigation, route }) {
     d.forEach(item => {
 
       promises.push(fetch(`${url}?action=getTables&table=${item[1]}`).then(async (data) => {
-        // console.log(item[1]);
+
         let d = await data.json();
         let b = {};
         b[item[1]] = table2Order(d.table);
-        //console.log(b);
+
         dispath(OrderSlice.actions.table2Order((b)));
 
         return b;
@@ -206,7 +206,7 @@ function Tablelist({ navigation, route }) {
   }, [])
 
   const clickTable = useCallback((item) => {
-    // console.log("orderlist1:", orderLists);
+
     if (item[2] == 0) {
       const invoice = generateInvoiceNumber();
 
@@ -326,13 +326,12 @@ function Tablelist({ navigation, route }) {
         <View style={styles.container}>
           <View style={styles.box}>
 
-            {list.map((item, index) =>
-
+            {list ? list.map((item, index) =>
             (
               <TouchableOpacity style={item[2] === 0 ? styles.button : styles.button1} key={index} onPress={() => clickTable(item)} >
                 <View>
                   <View style={{ flex: 1, alignItems: 'center' }}>
-                    <Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{mapping.ban[item[1]]}</Text>
+                    <Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{item[5]}</Text>
                   </View>
                   <View style={{ flexDirection: 'row' }}>
 
@@ -341,10 +340,8 @@ function Tablelist({ navigation, route }) {
                   <View style={{ flexDirection: 'row' }}><FontAwesomeIcon icon={faUsd} size={15} padding={10} /><Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{convertNumber(item[3])}</Text></View>
                 </View>
               </TouchableOpacity>)
-
             )
-
-            }
+              : null}
           </View>
 
         </View>

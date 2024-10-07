@@ -38,8 +38,8 @@ export default function report3({ data, name }) {
 
             const d = data;
             d.map(item => {
-                sum += item[1];
-                total += item[2];
+                sum += item.quantity;
+                total += item.total;
             });
             setSum(convertNumber(sum));
             setTotal(convertNumber(total));
@@ -106,30 +106,32 @@ export default function report3({ data, name }) {
             )
         }
         const processData = useCallback(() => {
+            if (JSON.stringify(data) != '[]') {
+                let total = data.reduce((a, b) => a + (parseInt(b.total) || 0), 0)
+                //  let count = dataOnline.reduce((a, b) => a + (parseInt(b[1]) || 0), 0)
+                //   let dataFinal= data.filter((item,index)=>(index!=0));
+                let dataFinal = data.map(item => item);
 
-            let total = data.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)
-            //  let count = dataOnline.reduce((a, b) => a + (parseInt(b[1]) || 0), 0)
-            //   let dataFinal= data.filter((item,index)=>(index!=0));
-            let dataFinal = data.map(item => item);
+                dataFinal = dataFinal.sort((a, b) => parseInt(b.total) - parseInt(a.total));
+                setSelectCategoryByName(dataFinal[0]._id);
+                let dataChart = dataFinal.map((item, index) => {
 
-            dataFinal = dataFinal.sort((a, b) => parseInt(b[2]) - parseInt(a[2]));
-            setSelectCategoryByName(dataFinal[0][0]);
-            let dataChart = dataFinal.map((item, index) => {
+                    let percent = (item.total / total * 100).toFixed(0);
 
-                let percent = (item[2] / total * 100).toFixed(0);
+                    return {
+                        label: `${percent}%`,
+                        y: Number(item.total),
+                        Count: item.quantity,
+                        color: colorScales[index],
+                        name: item.description,
+                        id: index,
+                        subTotal: item.total,
+                    }
+                })
 
-                return {
-                    label: `${percent}%`,
-                    y: Number(item[2]),
-                    Count: item[1],
-                    color: colorScales[index],
-                    name: item[0],
-                    id: index,
-                    subTotal: item[2],
-                }
-            })
-            //   console.log(dataChart);
-            return dataChart;
+                return dataChart;
+            }
+            else return []
         }, [data]);
 
         const setSelectCategoryByName = useCallback((name) => {
@@ -172,22 +174,22 @@ export default function report3({ data, name }) {
                     </View>
                     <ScrollView>
                         <View>
-                            {rdata.map((e, index) =>
+                            {rdata ? rdata.map((e, index) =>
                             (<View style={styles.order} key={index}>
                                 <View style={{ flex: 0.11, alignItems: 'center', padding: 5 }}>
                                     <Text>{index + 1}</Text>
                                 </View>
                                 <View style={{ flex: 0.48, alignItems: 'flex-start', padding: 5 }}>
-                                    <Text>{e[0]}</Text>
+                                    <Text>{e.description}</Text>
                                 </View>
                                 <View style={{ flex: 0.15, alignItems: 'center', padding: 5 }}>
-                                    <Text>{e[1]}</Text>
+                                    <Text>{e.quantity}</Text>
                                 </View>
                                 <View style={{ flex: 0.28, alignItems: 'flex-end', padding: 5 }}>
-                                    <Text>{convertNumber(e[2])}</Text>
+                                    <Text>{convertNumber(e.total)}</Text>
                                 </View>
                             </View>))
-                            }
+                                : null}
 
                         </View>
 
@@ -229,11 +231,15 @@ export default function report3({ data, name }) {
                     {
                         viewMode == "chart" &&
                         <View>
-                            {renderChart()}
+                            {(typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+
+                                dataP[0].Count != 0 ? renderChart() : null
+                            ]) : null
+                            }
                             {
-                                // console.log(dataP[0])
+
                                 (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
-                                    //    console.log("-", dataP),
+
                                     dataP[0].Count != 0 ? renderSummary() : null
                                 ]) : null
                             }

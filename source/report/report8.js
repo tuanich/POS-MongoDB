@@ -13,9 +13,9 @@ import {
     Platform
 } from 'react-native';
 import { VictoryPie } from 'victory-native';
-import { convertNumber, getReport67 } from "../api";
+import { convertNumber } from "../api";
 import * as Crypto from 'expo-crypto';
-
+import { getReport7 } from "../mongo";
 import { Svg } from 'react-native-svg';
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -67,7 +67,7 @@ export default function report8({ data, name }) {
                 let abortController = new AbortController();
                 let aborted = abortController.signal.aborted; // true || false
                 let data = async () => {
-                    let d = (await getReport67(index, y, 2));
+                    let d = (await getReport7(index, y));
 
                     aborted = abortController.signal.aborted; // before 'if' statement check again if aborted
                     if (aborted === false) {
@@ -179,47 +179,49 @@ export default function report8({ data, name }) {
             )
         }
         const processData = useCallback((d) => {
-
-            var sum = 0;
-            var total = 0;
-            d.map(item => {
-                sum += item[1];
-                total += item[2];
-            });
-
-
-            const online = ["TakeAway", "Grab", "Baemin", "Goviet", "Now", "Loship"];
-            let dataOffline = d.filter(item => !online.includes(item[0]));
-            let dataOnline = d.filter(item => online.includes(item[0]));
-
-            var sl = 0;
-            var tt = 0;
-            dataOffline.map(item => {
-                sl += Number(item[1]);
-                tt += Number(item[2]);
-            })
-            dataOffline = ['Ăn tại quán', sl, tt];
-            dataOnline.push(dataOffline);
-            dataOnline.sort((a, b) => parseInt(b[2]) - parseInt(a[2]));
-            setSelectCategoryByName(dataOnline[0][0]);
+            if (JSON.stringify(d) != '[]') {
+                var sum = 0;
+                var total = 0;
+                d.map(item => {
+                    sum += item.quantity;
+                    total += item.total;
+                });
 
 
-            //  let total = dataOnline.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)
-            //  let count = dataOnline.reduce((a, b) => a + (parseInt(b[1]) || 0), 0)
-            let dataChart = dataOnline.map((item, index) => {
-                let percent = (item[2] / total * 100).toFixed(0);
-                return {
-                    label: `${percent}%`,
-                    y: Number(item[2]),
-                    Count: item[1],
-                    color: colorScales[index],
-                    name: item[0],
-                    id: index,
-                    subTotal: item[2],
-                }
-            })
+                const online = ["TakeAway", "Grab", "Baemin", "Goviet", "Now", "Loship"];
+                let dataOffline = d.filter(item => !online.includes(item._id));
+                let dataOnline = d.filter(item => online.includes(item._id));
 
-            return { sum: sum, total: total, data: dataChart };
+                var sl = 0;
+                var tt = 0;
+                dataOffline.map(item => {
+                    sl += Number(item.quantity);
+                    tt += Number(item.total);
+                })
+                dataOffline = { '_id': 'Ăn tại quán', 'quantity': sl, 'total': tt };
+                dataOnline.push(dataOffline);
+                dataOnline.sort((a, b) => parseInt(b.total) - parseInt(a.total));
+                setSelectCategoryByName(dataOnline[0]._id);
+
+
+                //  let total = dataOnline.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)
+                //  let count = dataOnline.reduce((a, b) => a + (parseInt(b[1]) || 0), 0)
+                let dataChart = dataOnline.map((item, index) => {
+                    let percent = (item.total / total * 100).toFixed(0);
+                    return {
+                        label: `${percent}%`,
+                        y: Number(item.total),
+                        Count: item.quantity,
+                        color: colorScales[index],
+                        name: item._id,
+                        id: index,
+                        subTotal: item.total,
+                    }
+                })
+
+                return { sum: sum, total: total, data: dataChart };
+            }
+            else return []
         }, [data]);
 
         const setSelectCategoryByName = useCallback((name) => {
@@ -342,7 +344,7 @@ export default function report8({ data, name }) {
 
 
             return (
-                <View style={{ padding: SIZES.padding }} key={name}>
+                <View style={{ padding: SIZES.padding }} key={Crypto.randomUUID() + "-" + 100}>
                     <RenderItem data={data} setSelectCategoryByName={setSelectCategoryByName} selectedCategory={selectedCategory} name={name} />
                 </View>
 
@@ -361,22 +363,22 @@ export default function report8({ data, name }) {
                     </View>
                     <ScrollView>
                         <View>
-                            {rdata.map((e, index) =>
+                            {rdata ? rdata.map((e, index) =>
                             (<View style={styles.order} key={index + 80}>
                                 <View style={{ flex: 0.11, alignItems: 'center', padding: 5 }}>
                                     <Text>{index + 1}</Text>
                                 </View>
                                 <View style={{ flex: 0.38, alignItems: 'flex-start', padding: 5 }}>
-                                    <Text>{e[0]}</Text>
+                                    <Text>{e._id}</Text>
                                 </View>
                                 <View style={{ flex: 0.15, alignItems: 'center', padding: 5 }}>
-                                    <Text>{e[1]}</Text>
+                                    <Text>{e.quantity}</Text>
                                 </View>
                                 <View style={{ flex: 0.37, alignItems: 'flex-end', padding: 4 }}>
-                                    <Text>{convertNumber(e[2])}</Text>
+                                    <Text>{convertNumber(e.total)}</Text>
                                 </View>
                             </View>))
-                            }
+                                : null}
 
                         </View>
 
@@ -417,7 +419,10 @@ export default function report8({ data, name }) {
                     {
                         viewMode == "chart" &&
                         <View>
-                            {renderChart()}
+                            {(typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+
+                                dataP[0].Count != 0 ? renderChart() : null
+                            ]) : null}
                             {
 
                                 (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([

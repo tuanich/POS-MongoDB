@@ -6,13 +6,20 @@ import PaymentDetail from './paymentDetail';
 import { convertNumber, pay } from './source/api';
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants/';
 import mapping from "./mapping.json";
+import 'localstorage-polyfill';
+
+
+const PAYMENT_STORAGE = "PAYMENT_KEY";
+
 
 export default function paymentList({ navigation, route }) {
 
   const [sum, setSum] = useState();
-  const [sales, setSales] = useState();
-  const payment = useSelector(paymentlistSelector);
-  const dataInvoice = useSelector(saleslistSelector);
+  //const [sales, setSales] = useState();
+  //const payment = useSelector(paymentlistSelector);
+  //const dataInvoice = useSelector(saleslistSelector);
+  const [dataP, setDataP] = useState([]);
+  //const [payment, setPayment] = useState({});
 
   // const [dataP,setDataP] =useState([]);
 
@@ -25,26 +32,44 @@ export default function paymentList({ navigation, route }) {
   useEffect(() => {
 
 
-    setSum(convertNumber(payment.reduce((a, b) => a + (parseInt(b[2]) || 0), 0)));
+    const storagedPAYMENT = localStorage.getItem(PAYMENT_STORAGE);
 
-    if (JSON.stringify(dataInvoice) != '[]') {
+    if (storagedPAYMENT) {
+      const _storagedPayment = storagedPAYMENT.replace(/\'/g, '\"');
+      let d = JSON.parse(_storagedPayment);
 
-      let s = dataInvoice.reduce((result, item) => ({
-        ...result,
-        [item[1]]: [
-          ...(result[item[1]] || []),
-          item,
-        ],
-      }),
-        {},
-      );
+      //sort
+      setDataP(d.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
 
-
-      delete s['invoice'];
-      // console.log("a", s);
-      setSales(s);
+      setSum(convertNumber(d.reduce((a, b) => a + (parseInt(b.total) || 0), 0)));
     }
-  }, [dataInvoice, payment])
+
+
+
+
+
+    // let data = payment.map(item => item);
+
+
+    /*
+        if (JSON.stringify(dataInvoice) != '[]') {
+    
+          let s = dataInvoice.reduce((result, item) => ({
+            ...result,
+            [item['invoice']]: [
+              ...(result[item['invoice']] || []),
+              item,
+            ],
+          }),
+            {},
+          );
+    
+    
+          delete s['invoice'];
+       
+          setSales(s);*
+        }*/
+  }, [])
 
 
 
@@ -61,13 +86,14 @@ export default function paymentList({ navigation, route }) {
   // );};
 
 
-  const print = (day, id, sum, type) => {
+  const print = (sales, day, id, sum, type) => {
 
-    let order = [];
-    sales[id].forEach(item => {
-      let datalet = { description: `${item[3]}`, quan: `${item[4]}`, subtotal: `${item[5]}` };
-      order.push(datalet);
-    })
+    const order = sales;
+    /* let order = [];
+     sales[id].forEach(item => {
+       let datalet = { description: `${item.description}`, quan: `${item.quantity}`, subtotal: `${item.quantity * item.price}` };
+       order.push(datalet);
+     })*/
 
     navigation.navigate("Printer", { day: { day }, order: { order }, type: { type }, sum: { sum } });
   };
@@ -77,8 +103,8 @@ export default function paymentList({ navigation, route }) {
 
 
 
-  if (JSON.stringify(payment) == '[]' || JSON.stringify(payment) == '[null]' || JSON.stringify(payment) == '[[null]]') {
-
+  // if (JSON.stringify(payment) == '[]' || JSON.stringify(payment) == '[null]' || JSON.stringify(payment) == '[[null]]') {
+  if (JSON.stringify(dataP) == '[]' || JSON.stringify(dataP) == '[null]' || JSON.stringify(dataP) == '[[null]]') {
 
     return (
       <View style={[{ flex: 1, justifyContent: "center" }, styles.horizontal]}>
@@ -89,40 +115,37 @@ export default function paymentList({ navigation, route }) {
     );
   }
   else {
-
-
-
     return (
       <ScrollView>
 
-        {
-
-          payment.map((files, index) => (
+        {dataP ?
+          dataP.map((files, index) => (
             <View key={index} style={{ flex: 1, borderRadius: 12, backgroundColor: COLORS.white, marginTop: 10, marginLeft: 10, marginRight: 10 }}>
-              <TouchableOpacity onPress={() => print(files[0], files[1], files[2], files[3])}>
+              <TouchableOpacity onPress={() => print(files.sales, files.timestamp, files.invoice, files.total, files.type)}>
                 <View style={styles.button}>
 
                   <View style={{ flex: 1.25, alignItems: 'flex-start' }}>
-                    <Text>{files[0]}</Text>
+                    <Text>{files.timestamp}</Text>
                   </View>
                   <View style={{ flex: 1, alignItems: 'flex-start' }}>
-                    <Text>{mapping.ban[files[3]]}</Text>
+                    <Text>{mapping.ban[files.type]}</Text>
                   </View>
                   <View style={{ flex: 1.2, alignItems: 'flex-end' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Total: {convertNumber(parseInt(files[2]))}</Text>
+                    <Text style={{ fontWeight: 'bold' }}>Total: {convertNumber(parseInt(files.total))}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
               <>
-                {/* {console.log(files)}  */}
-                {
-                  (typeof sales != 'undefined') ? sales[files[1]].map((item, index) => (
+
+                {files.sales ?
+                  files.sales.map((item, index) => (
                     <PaymentDetail key={index} item={item} />
-                  )) : <Text>NULL</Text>
-                }
+                  ))
+                  : null}
               </>
             </View>
-          ))}
+          ))
+          : null}
       </ScrollView>
     )
   }
