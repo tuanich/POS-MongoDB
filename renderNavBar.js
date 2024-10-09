@@ -11,7 +11,7 @@ export default function renderNavBar({ save, back, paymentAlert, type, sum }) {
     <View
       style={{
         flexDirection: 'row',
-        height: 80,
+        //height: 80,
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         //    paddingHorizontal: SIZES.padding,

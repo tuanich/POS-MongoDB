@@ -19,7 +19,7 @@ export default function Order({ order, deleOrder, plus, minus }) {
 
   else {
     //  const data=order.filter (ord => ord.type === type);
-
+    { }
     return (
 
 

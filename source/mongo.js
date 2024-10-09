@@ -176,29 +176,26 @@ export const insertPayment = async (data) => {
             'Content-Type': 'application/json'
         }
     };
-
     try {
         let respay = await fetch(mongoURL + "insertOne", o1);
         let data1 = await respay.json();
-
         let ressale = await fetch(mongoURL + "insertMany", o2);
         let data2 = await ressale.json();
 
-        return true;
-        // 
-    } catch {
+        if (data1.insertedId && data2.insertedIds)
+            return true
+    }
+    catch {
         console.log("insertPayment loi :", Error);
         return false;
     }
-
-
 };
 
 export const getPayments = async () => {
     const date = new Date();
     // let res={};    
     var op = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit' };
-    const d = date.toLocaleString('en-US', op);
+    const d = date.toLocaleString('en-GB', op);
     const query = { "timestamp": { "$regex": d } };
     const q = [
         {
@@ -255,21 +252,43 @@ export const getPayments = async () => {
 }
 
 export const getReport6 = async (m, y) => {
-
-    if (m < 10) { m = "^0" + m }
-    else m = "^" + m;;
-    m = m.toString();
-    y = y.toString();;
-
-
-
     let res = {};
+
+    /*  if (m < 10) { m = "^0" + m }
+      else m = "^" + m;;
+      m = m.toString();
+      y = y.toString();;
+      let query1 = [{
+          "$match": {
+              "$and":
+                  [{ "timestamp": { "$regex": m } }, { "timestamp": { "$regex": y } }
+                  ]
+          }
+      },
+      {
+          "$group": {
+              "_id": "$sku",
+              "quantity": { "$sum": "$quantity" },
+              "description": { "$min": "$description" },
+              "total": { "$sum": { "$multiply": ["$price", "$quantity"] } }
+          }
+  
+      },
+      {
+          "$sort": { "quantity": -1 }
+      }
+      ];*/
+    var my;
+    if (m == "0") { my = ""; }
+    else {
+        if (m < 10) { m = "0" + m }
+        m = m.toString();
+        y = y.toString();
+        my = m + "/" + y;
+    }
+
     let query1 = [{
-        "$match": {
-            "$and":
-                [{ "timestamp": { "$regex": m } }, { "timestamp": { "$regex": y } }
-                ]
-        }
+        "$match": { "timestamp": { "$regex": my } }
     },
     {
         "$group": {
@@ -284,7 +303,6 @@ export const getReport6 = async (m, y) => {
         "$sort": { "quantity": -1 }
     }
     ];
-
 
     const payload1 = {
         //filter: query, sort: order, limit: limit,
@@ -321,19 +339,45 @@ export const getReport6 = async (m, y) => {
 
 }
 export const getReport7 = async (m, y) => {
-    if (m < 10) { m = "^0" + m }
-    else m = "^" + m;;
-    m = m.toString();
-    y = y.toString();;
-
     let res = {};
+    /*   if (m < 10) { m = "^0" + m }
+       else m = "^" + m;;
+       m = m.toString();
+       y = y.toString();
+   
+       
+       const query2 = [{
+           "$match": {
+               "$and":
+                   [{ "timestamp": { "$regex": m } }, { "timestamp": { "$regex": y } }
+                   ]
+           }
+       },
+       {
+           "$group": {
+               "_id": "$type",
+               "quantity": { "$sum": 1 },
+               "total": { "$sum": "$total" }
+           }
+       },
+       {
+           "$sort": { "total": -1 }
+       }];*/
+    var my;
+    if (m == "0") { my = ""; }
+    else {
+        if (m < 10) { m = "0" + m }
+
+        m = m.toString();
+        y = y.toString();
+        my = m + "/" + y;
+    }
+
+
     const query2 = [{
-        "$match": {
-            "$and":
-                [{ "timestamp": { "$regex": m } }, { "timestamp": { "$regex": y } }
-                ]
-        }
-    },
+        "$match": { "timestamp": { "$regex": my } }
+    }
+        ,
     {
         "$group": {
             "_id": "$type",
@@ -405,7 +449,7 @@ export const getReport45 = async () => {
     ];
 
     const query2 = [
-        { "$addFields": { "m": { "$substr": ["$timestamp", 0, 2] }, "y": { "$substr": ["$timestamp", 6, 4] } } },
+        { "$addFields": { "m": { "$substr": ["$timestamp", 3, 2] }, "y": { "$substr": ["$timestamp", 6, 4] } } },
         {
             "$group": {
                 "_id": {
@@ -479,7 +523,7 @@ export const getReport = async () => {
     const date = new Date();
     let res = {};
     var op = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit' };
-    const d = date.toLocaleString('en-US', op);
+    const d = date.toLocaleString('en-GB', op);
     const query = { "timestamp": { "$regex": d } };
 
     const q = [{ "$match": query },
@@ -652,7 +696,7 @@ export const getReport = async () => {
     ];
 
     const q5 = [
-        { "$addFields": { "m": { "$substr": ["$timestamp", 0, 2] }, "y": { "$substr": ["$timestamp", 6, 4] } } },
+        { "$addFields": { "m": { "$substr": ["$timestamp", 3, 2] }, "y": { "$substr": ["$timestamp", 6, 4] } } },
         {
             "$group": {
                 "_id": {

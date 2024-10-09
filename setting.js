@@ -23,7 +23,7 @@ export default function setting() {
 
       </View>
       <View style={{ flex: 1, padding: 10 }}>
-        <TouchableOpacity style={styles.Button} onPress={() => navigation.navigate('ReportMenu')}>
+        <TouchableOpacity style={styles.Button}>
           <Text style={styles.textButton}>Cập nhật</Text>
         </TouchableOpacity>
       </View>
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
 
     padding: 10,
     fontSize: 20,
-    color: 'black',
+    color: 'white',
   },
   textI: {
 

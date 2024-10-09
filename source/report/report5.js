@@ -47,7 +47,7 @@ export default function report5({ data, name }) {
       else {
         const d = data.map(item => item);
 
-        d.sort((b, a) => (b._id.localeCompare(a._id)));
+        d.sort((a, b) => (b._id.localeCompare(a._id)));
 
         return (d.map((item, index) => {
           if (typeof item._id == 'undefined' || typeof item.total == 'undefined') return {
@@ -56,7 +56,7 @@ export default function report5({ data, name }) {
           }
           else {
             return {
-              x: item._id.substring(3, 5) + "/" + item._id.substring(0, 2),
+              x: item._id.substring(0, 5),
               y: item.total,
             }
           }
@@ -126,7 +126,7 @@ export default function report5({ data, name }) {
     function renderChart() {
       const dataChart = dataP;
 
-      var thang = dataChart[0]['x'].substring(2);
+      var thang = dataChart[0]['x'].substring(0, 2);
       return (
         <View style={{ flex: 1 }} key={name}>
           <VictoryChart

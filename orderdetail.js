@@ -22,9 +22,7 @@ import { insertPayment, updateTables } from './source/mongo';
 import { checkDate } from "./source/api";
 import 'localstorage-polyfill';
 
-
 // TablistMenu
-
 
 //const STATUS_STORAGE="STATUS_KEY";
 const SALES_STORAGE = "SALES_KEY";
@@ -35,10 +33,7 @@ export default function Orderdetail({ navigation, route }) {
   const [visible, setVisible] = useState(false);
   const flashMessage = useRef();
   const dispath = useDispatch();
-
-
   const [invoice, setInvoice] = useState(useSelector(invoicelistSelector));
-
   const [paymentList, setPaymentList] = useState([]);
   const orderList = useSelector(orderlistSelector);
   //const itemList = useSelector(itemlistSelector);
@@ -64,17 +59,12 @@ export default function Orderdetail({ navigation, route }) {
 
   }, [invoice]);
 
-
-
   const back = () => {
     navigation.navigate("Tablelist",
       { p: { status } });
   }
 
   ///-----------------renderNavBar
-
-
-
 
   useEffect(() => {
 
@@ -95,9 +85,7 @@ export default function Orderdetail({ navigation, route }) {
 
       setPaymentList(JSON.parse(_storagedPayment));
 
-
     }
-
 
     if (typeof orderList[type] == 'undefined' || JSON.stringify(orderList) == '{}') {
 
@@ -133,8 +121,6 @@ export default function Orderdetail({ navigation, route }) {
 
   }, [sales]);
 
-
-
   //--------Status-----------------
   // useEffect(() => {
   //   localStorage.setItem(STATUS_STORAGE, JSON.stringify(status));
@@ -153,7 +139,7 @@ export default function Orderdetail({ navigation, route }) {
     if (order.length > 0) {
       var date = new Date();
       const ti = format(date, 'HH:mm:ss');
-      date = format(date, 'MM/dd/yyyy, HH:mm:ss');
+      date = format(date, 'dd/MM/yyyy, HH:mm:ss');
 
       const time = { timestamp: date };
       let data = sales;
@@ -180,11 +166,8 @@ export default function Orderdetail({ navigation, route }) {
         dispath(orderSlice.actions.addOrder({ ...obj, ...data }));
         dispath(statusSlice.actions.updateStatus({ type: type, status: 1, sumtotal: sum, timestamp: ti }));
 
-
         // dispath(orderSlice.table2Order(...obj, ...data));
-
         // updateTable(exportData, type, date, invoice);
-
 
         flashMessage.current.showMessage({
           message: "Đã lưu thành công",
@@ -213,8 +196,6 @@ export default function Orderdetail({ navigation, route }) {
       // dispath(statusSlice.actions.addStatus(s));
       if (updateTables([], 0, type, 0, "")); //clear table
       {
-
-
         //var index = status.map(item => item[1]).indexOf(type);
 
         //  updateStatus(index, 0, 0, 0);
@@ -222,8 +203,6 @@ export default function Orderdetail({ navigation, route }) {
         if (typeof sales[type] != 'undefined') {
           let data = sales;
           delete data[type];
-
-
           setSales({ ...data });
           // dispath(clearOrderAction());
           dispath(orderSlice.actions.addOrder({ ...data }));
@@ -279,20 +258,20 @@ export default function Orderdetail({ navigation, route }) {
     setVisible(false);
     if (order.length > 0) {
       var date = new Date();
-      d = format(date, 'MM/dd/yyyy, HH:mm:ss');
+      day = format(date, 'dd/MM/yyyy, HH:mm:ss');
       let orderData = order.map(item => item);
 
       if (JSON.stringify(order[0].timestamp) != undefined) {
-        d = checkDate(orderData[0].timestamp);
+        day = checkDate(orderData[0].timestamp);
       }
       else {
 
         orderData = orderData.map(item => {
-          return { ...item, timestamp: d };
+          return { ...item, timestamp: day };
         });
       }
 
-      let payment = { timestamp: d, invoice: invoice, total: sum, type: type, paymentType: "", tip: "", sales: orderData };
+      let payment = { timestamp: day, invoice: invoice, total: sum, type: type, paymentType: "", tip: "", sales: orderData };
       const exportData = {
         payment: payment,
         sale: orderData
@@ -330,7 +309,8 @@ export default function Orderdetail({ navigation, route }) {
             backgroundColor: "#517fa4",
           });
           setOrder([]);
-          navigation.navigate("Printer", { day: { d }, order: { order }, type: { type }, sum: { sum } });
+
+          navigation.navigate("Printer", { day: { day }, order: { order }, type: { type }, sum: { sum } });
         }
         else {
           flashMessage.current.showMessage({
@@ -341,19 +321,12 @@ export default function Orderdetail({ navigation, route }) {
           });
         }
       }
-
       Pay();
-
     }
 
   }, [order, sales, status, sum])
 
-
-
-
   //------ Tab ------
-
-
 
   //-----Delete oreder------
   const deleOrder = useCallback((index) => {
@@ -380,8 +353,6 @@ export default function Orderdetail({ navigation, route }) {
   //-----minus quantity------
   const minus = useCallback((index) => {
     var sl = parseInt(order[index].quantity) - 1;
-
-
     if (sl == 0) deleOrder(index);
     else {
       setOrder((prevState) =>
@@ -397,98 +368,80 @@ export default function Orderdetail({ navigation, route }) {
 
   ///-----Add order --------
   const addOrder = useCallback((sku, items, price) => {
-    var quan = 1;
+    var quantity = 1;
     var flag = false;
-    var su = 0;
 
+    /*  if (order.length > 0) {
+        order.forEach(orderline => {
+          if (orderline.description == items) {
+            quantity = parseInt(orderline.quantity) + 1;
+            flag = true;
+          }
+        });
+        if (flag == true) {
+          setOrder((prevState) =>
+            prevState.map((order) =>
+              order.description === items ? { ...order, quantity: quantity } : order
+            ));
+        }
+      };
+  
+      if (flag == false) {
+        //  const obj = { sku: sku.toString(), invoice: invoice, description: items, quantity: quantity, price: price, type: type };
+        //setOrder([obj,...order,]);
+        setOrder([...order, { sku: sku.toString(), invoice: invoice, description: items, quantity: quantity, price: price, type: type },]);
+      }*/
+
+    let orderD = [];
     if (order.length > 0) {
-
-      order.forEach(orderline => {
-
+      orderD = order.map(orderline => {
         if (orderline.description == items) {
-
-          quan = parseInt(orderline.quantity) + 1;
+          orderline.quantity = parseInt(orderline.quantity) + 1;
           flag = true;
         }
-      });
-      if (flag == true) {
-
-        setOrder((prevState) =>
-          prevState.map((order) =>
-            order.description === items ? { ...order, quantity: quan } : order
-          ));
-
-      }
-
-
-    };
-
-    /* */
-
-    if (flag == false) {
-
-      const obj = { sku: sku.toString(), invoice: invoice, description: items, quantity: quan, price: price, type: type };
-      //setOrder([obj,...order,]);
-      setOrder([...order, obj,]);
-
+        return orderline
+      })
+      setOrder(orderD);
     }
+    if (flag == false) {
+      setOrder([...order, { sku: sku.toString(), invoice: invoice, description: items, quantity: quantity, price: price, type: type },]);
+    }
+
+
 
   }, [order]);
 
-
-
-
-
   return (
-
     <View style={{ flex: 1, }}>
-
       {/* Nav bar section */}
       {/*renderNavBar()*/}
       <RenderNavBar save={save} back={back} paymentAlert={paymentAlert} sum={sum} type={type}></RenderNavBar>
       {renderMsgbox()}
       <View style={styles.main}>
-
         <View style={styles.orderContent}>
           <View style={[styles.viewOrder, { flex: 0.6 }]}><Text style={styles.menuOrder}>Món ăn</Text></View>
           <View style={[styles.viewOrder, { flex: 0.1 }]} ><Text style={styles.menuOrder}>SL</Text></View>
-
           <View style={[styles.viewOrder, { flex: 0.3 }]} ><Text style={styles.menuOrder}>TTiền</Text></View>
         </View>
         <View style={styles.order}>
           <Order order={order} deleOrder={deleOrder} plus={plus} minus={minus} />
         </View>
-
-
-
         <TabListMenu addOrder={addOrder} />
-
-
-
         <FlashMessage ref={flashMessage} />
-
       </View>
-
-
     </View>
-
   );
-
 }
 
 const styles = StyleSheet.create({
 
   main: {
     flex: 1,
-
     backgroundColor: COLORS.lightGray2
-
   },
-
 
   order: {
     flex: 1,
-
   },
 
   orderContent: {
@@ -498,12 +451,9 @@ const styles = StyleSheet.create({
     //  justifyContent:'center',
   },
   menuOrder: {
-
-
     fontSize: 18,
     color: 'white',
     padding: 1,
-
   },
   viewOrder: {
     backgroundColor: '#5E8D48',
@@ -520,8 +470,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: 'absolute',
-
   },
-
-
 });

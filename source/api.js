@@ -25,7 +25,7 @@ export const pay = (order, type, sum, invoice) => {
   else {
     //  d = date.toLocaleString('en-US', options);
 
-    d = format(date, 'MM/dd/yyyy, HH:mm:ss');
+    d = format(date, 'dd/MM/yyyy, HH:mm:ss');
 
   }
 
@@ -473,7 +473,7 @@ export const checkDate = (d) => {
     return d;
   }
   d = new Date(d);
-  return format(d, 'MM/dd/yyyy, HH:mm:ss');
+  return format(d, 'dd/MM/yyyy, HH:mm:ss');
 
 };
 
