@@ -1,5 +1,5 @@
 import React from "react";
-import * as Crypto from 'expo-crypto';
+
 
 import {
     View,
@@ -13,7 +13,7 @@ import { convertNumber } from "../api";
 import { COLORS, FONTS, SIZES } from '../constants';
 
 
-const colorScales = ['#4E8397', '#845EC2', '#2C73D2', '#FF6F91', '#008F7A', '#0081CF', '#4B4453', "#BEC1D2", '#42B0FF', '#C4FCEF', '#898C95', '#FFD573', '#95A9B8', '#008159', '#FF615F', '#8e44ad', '#FF0000', '#D0E9F4', '#AC5E00'];
+
 
 
 export default function RenderItem({ data, selectedCategory, setSelectCategoryByName, name }) {
@@ -22,7 +22,7 @@ export default function RenderItem({ data, selectedCategory, setSelectCategoryBy
     return (data ?
         data.map((item, index) =>
         (
-            <TouchableOpacity key={index + "-" + name}
+            <TouchableOpacity key={`${index}-${name}`}
 
                 style={{
                     marginTop: 3,

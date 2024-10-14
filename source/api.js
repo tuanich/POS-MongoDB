@@ -282,16 +282,18 @@ else
   const date = new Date();
 
   let y = date.getFullYear();
-  y = y.toString().substring(-2);
+  y = y.toString().substring(2);
+
   const m = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1);
   const d = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
   const today = y.toString() + m.toString() + d.toString();
 
-  const h = date.getHours();
-  const ms = date.getMinutes();
-  const s = date.getSeconds();
+  const h = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+  const ms = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+  const s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+
   const id = h.toString() + ms.toString() + s.toString();
-  this.invoiceNumber = today + '-' + id;
+  const invoiceNumber = today + '-' + id;
   return invoiceNumber;
 }
 

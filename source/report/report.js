@@ -12,25 +12,17 @@ import Report5 from './report5';
 import Report6 from './report6';
 import Report7 from './report7';
 import Report8 from './report8';
-import * as Crypto from 'expo-crypto';
+
 
 
 export default function report1({ navigation, route }) {
-        //const [report,setReport]= useState();
-        //const [rPayment,setRPayment]= useState([]);
-        //const [refreshing, setRefreshing] = useState(false);
-        //const dispath =useDispatch();
-        // const [key, setKey] = useState(Crypto.randomUUID());
-        //   const report = useSelector(rSaleslistSelector);
-        //  const rPayment = useSelector(rPaymentlistSelector);
-        //const report8 = useSelector(report8ListSelector);
+
 
         const report = useSelector(reportListSelector);
 
         useEffect(() => {
 
                 navigation.setOptions({ title: route.params.name });
-                //  setKey(Crypto.randomUUID());
 
         }, [navigation]);
 
@@ -38,23 +30,23 @@ export default function report1({ navigation, route }) {
         function renderSwitch(c) {
                 switch (c) {
                         case 0: return (<View style={{ flex: 1 }}>{ }<Report1 data={report.r} name={"A"} /></View>);
-                                break;
-                        case 1: return (<View style={{ flex: 1 }}>{ }<Report2 data={report.r1} name={"B"} /></View>);
-                                break;
-                        case 2: return (<View style={{ flex: 1 }}>{ }<Report3 data={report.r2} name={"C"} /></View>);
-                                break;
-                        case 3: return (<View style={{ flex: 1 }}>{ }<Report4 data={report.r3} name={"D"} /></View>);
-                                break;
-                        case 4: return (<View style={{ flex: 1 }}><Report5 data={report.r4} name={"E"} /></View>);
-                                break;
-                        case 5: return (<View style={{ flex: 1 }}><Report6 data={report.r5} name={"F"} /></View>);
-                                break;
-                        case 6: return (<View style={{ flex: 1 }}><Report7 data={report.r6} name={"G"} /></View>);
-                                break;
-                        case 7: return (<View style={{ flex: 1 }} ><Report8 data={report.r7} name={"H"} /></View>);
-                                break;
 
-                        default: break;
+                        case 1: return (<View style={{ flex: 1 }}>{ }<Report2 data={report.r1} name={"B"} /></View>);
+
+                        case 2: return (<View style={{ flex: 1 }}>{ }<Report3 data={report.r2} name={"C"} /></View>);
+
+                        case 3: return (<View style={{ flex: 1 }}>{ }<Report4 data={report.r3} name={"D"} /></View>);
+
+                        case 4: return (<View style={{ flex: 1 }}><Report5 data={report.r4} name={"E"} /></View>);
+
+                        case 5: return (<View style={{ flex: 1 }}><Report6 data={report.r5} name={"F"} /></View>);
+
+                        case 6: return (<View style={{ flex: 1 }}><Report7 data={report.r6} name={"G"} /></View>);
+
+                        case 7: return (<View style={{ flex: 1 }} ><Report8 data={report.r7} name={"H"} /></View>);
+
+
+                        default: return null
                 }
         }
 
@@ -70,20 +62,12 @@ export default function report1({ navigation, route }) {
         else {
 
                 return (
-                        //  <ScrollView contentContainerStyle={{ flex: 1, backgroundColor:'white'}} refreshControl={
-                        //        <RefreshControl
-                        //         refreshing={refreshing}
-                        //         onRefresh={onRefresh}
-                        //         title='loading'
-                        //         progressBackgroundColor='#79B45D'
-                        //         color='#fff'
-                        //         tintColor='#fff'
-                        //       />}>
+
 
                         <View style={{ flex: 1 }}>{renderSwitch(route.params.i)}</View>
 
 
-                        // </ScrollView>
+
                 )
         }
 };

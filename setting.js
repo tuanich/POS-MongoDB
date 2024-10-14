@@ -1,81 +1,92 @@
-import * as React from 'react';
-import { useEffect, useState, useCallback } from 'react';
-import { mongoURL } from '@env';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { mongoURL, apikey } from '@env';
+import * as FileSystem from 'expo-file-system';
+
 
 //import config from "./app.json";
 
 export default function setting() {
-  const [Url, setUrl] = useState(mongoURL);
+  const [Url, setUrl] = useState({ name: mongoURL, key: apikey });
+
+  const updateEnvFile = async () => {
+
+    const envFilePath = `${FileSystem.documentDirectory}.env`;
+    const newEnvContent = `mongoURL=${Url.name}\n apikey=${Url.key}\n`;
+
+
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(envFilePath);
+      if (!fileInfo.exists) {
+        // Create the file if it doesn't exist
+        await FileSystem.writeAsStringAsync(envFilePath, '', { encoding: FileSystem.EncodingType.UTF8 });
+      }
+
+      await FileSystem.writeAsStringAsync(envFilePath, newEnvContent, { encoding: FileSystem.EncodingType.UTF8 });
+      Alert.alert('Success', 'Environment variable updated successfully!');
+    } catch (error) {
+      Alert.alert('Error', `Failed to update environment variable. ${error.message}`);
+    }
+  };
+
 
   return (
-    <View styel={{ flex: 1 }}>
+    <View style={styles.container}>
       <View style={styles.box}>
-
-        <View style={{ flex: 1, alignItems: 'flex-start', padding: 10 }}>
-          <Text style={styles.textButton}>URL = </Text>
-
-          <TextInput style={styles.textI} onChangeText={(value) => { setUrl(value); }}>{Url}</TextInput>
-
-        </View>
-
-
-
+        <Text style={styles.textI}>API URL:</Text>
+        <TextInput
+          style={styles.textInput}
+          value={Url.name}
+          onChangeText={text => setUrl({ ...Url, ['name']: text })}
+        />
       </View>
-      <View style={{ flex: 1, padding: 10 }}>
-        <TouchableOpacity style={styles.Button}>
+      <View style={styles.box}>
+        <Text style={styles.textI}>API KEY:</Text>
+        <TextInput
+          style={styles.textInput}
+          value={Url.key}
+          onChangeText={text => setUrl({ ...Url, ['key']: text })}
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={updateEnvFile}>
           <Text style={styles.textButton}>Cập nhật</Text>
         </TouchableOpacity>
       </View>
     </View>
-
-
-
   );
-};
+}
+
 const styles = StyleSheet.create({
-  Button: {
-
-    width: 150,
-    height: 50,
-
-    backgroundColor: '#79B45D',
-    alignItems: 'center',
-
-    borderRadius: 12,
-    justifyContent: 'center',
-    marginTop: 15
-  },
-  textButton: {
-
-    padding: 10,
-    fontSize: 20,
-    color: 'white',
-  },
-  textI: {
-
-    fontSize: 18,
-    //   margin:5
-    //   width:300,
-    //   height:300,
-    //   top :0,
-
-  },
-  main: {
-    flex: 1
-
-  },
-
-  urlContent: {
-
-
-
+  container: {
+    flex: 1,
+    padding: 20,
   },
   box: {
-    fontSize: 14,
-    padding: 2,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    margin: 1,
-  }
-})
+    marginBottom: 20,
+  },
+  textI: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#79B45D',
+    padding: 15,
+    borderRadius: 12,
+  },
+  textButton: {
+    color: 'white',
+    fontSize: 16,
+  },
+});
+
+

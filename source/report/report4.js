@@ -16,7 +16,7 @@ import { convertNumber } from "../api";
 import RenderChart from "./renderChart";
 import { COLORS, SIZES, icons } from '../constants';
 import RenderItem from './renderItem';
-import * as Crypto from 'expo-crypto';
+
 
 
 const colorScales = ['#4E8397', '#845EC2', '#2C73D2', '#FF6F91', '#008F7A', '#0081CF', '#4B4453', "#BEC1D2", '#42B0FF', '#C4FCEF', '#898C95', '#FFD573', '#95A9B8', '#008159', '#FF615F', '#8e44ad', '#FF0000', '#D0E9F4', '#AC5E00'];
@@ -178,7 +178,7 @@ export default function report4({ data, name }) {
                     <ScrollView>
                         <View>
                             {rdata ? rdata.map((e, index) =>
-                            (<View style={styles.order} key={index}>
+                            (<View style={styles.order} key={40 + "-" + reportName+"-"+index}>
                                 <View style={{ flex: 0.11, alignItems: 'center', padding: 5 }}>
                                     <Text>{index + 1}</Text>
                                 </View>
@@ -234,16 +234,16 @@ export default function report4({ data, name }) {
                     {
                         viewMode == "chart" &&
                         <View>
-                            {(typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+                            {(typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? (
 
                                 dataP[0].Count != 0 ? renderChart() : null
-                            ]) : null}
+                            ) : null}
                             {
 
-                                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+                                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? (
 
                                     dataP[0].Count != 0 ? renderSummary() : null
-                                ]) : null
+                                ) : null
                             }
                         </View>
                     }
@@ -291,13 +291,13 @@ const styles = StyleSheet.create({
     },
     menuOrder: {
 
-        fontSize: 18,
+        fontSize: 16,
         color: 'white',
         padding: 5,
 
     },
     sum: {
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     }
 })

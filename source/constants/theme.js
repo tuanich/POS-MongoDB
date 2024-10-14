@@ -57,7 +57,16 @@ export const FONTS = {
     body3: { fontFamily: "Roboto-Regular", fontSize: SIZES.body3, lineHeight: 22 },
     body4: { fontFamily: "Roboto-Regular", fontSize: SIZES.body4, lineHeight: 22 },
 };
+export const colorScales = [
+    '#E52B50', '#FFBF00', '#9966CC', '#8DB600', '#BE0032', '#FBCEB1', '#7FFFD4', '#007FFF', '#89CFF0', '#F5F5DC', '#CB4154', '#0095B6', '#8A2BE2', '#DE5D83', '#CD7F32', '#993300', '#800020', '#702963', '#960018', '#DE3163',
+    '#02A4D3', '#F7E7CE', '#7FFF00', '#7B3F00', '#0047AB', '#B87333', '#FF7F50', '#DC143C', '#00FFFF', '#EDC9AF', '#7DF9FF', '#50C878', '#00C957', '#00FF3F', '#FFD700', '#808080', '#009900', '#3FFF00', '#4B0082', '#00A86B',
+    '#29AB87', '#B57EDC', '#6A0DAD', '#E30B5C', '#FF0000', '#C71585', '#FF007F', '#E0115F', '#B7410E', '#FA8072', '#92000A', '#0F52BA', '#FF2400', '#C0C0C0', '#708090', '#A7FC00', '#00FF7F', '#D2B48C', '#483C32', '#008080',
+    '#40E0D0', '#3F00FF', '#8000FF', '#40826D'
+];
+export const month = [
+    'All', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+];
 
-const appTheme = { COLORS, SIZES, FONTS };
+const appTheme = { COLORS, SIZES, FONTS, colorScales, month };
 
 export default appTheme;

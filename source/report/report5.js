@@ -5,7 +5,7 @@ import { VictoryChart, VictoryBar, VictoryTheme, VictoryAxis, VictoryLabel, Vict
 import { convertNumber } from '../api';
 import { Svg } from 'react-native-svg';
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
-import * as Crypto from 'expo-crypto';
+
 
 export default function report5({ data, name }) {
   const [rdata, setRdata] = useState([]);
@@ -181,7 +181,7 @@ export default function report5({ data, name }) {
             <View >
               {rdata ? rdata.map((e, index) =>
 
-              (<View style={styles.order} key={index + 50}>
+              (<View style={styles.order} key={e._id + "-" + reportName}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>
@@ -244,10 +244,10 @@ export default function report5({ data, name }) {
             <View>
               {
 
-                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? (
 
                   dataP[0].x != 'undefined' ? renderChart() : null
-                ]) : null
+                ) : null
               }
               {/* {renderSummary()}  */}
             </View>
@@ -287,13 +287,13 @@ const styles = StyleSheet.create({
   },
   menuOrder: {
 
-    fontSize: 18,
+    fontSize: 16,
     color: 'white',
     padding: 5,
 
   },
   sum: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
   }
 

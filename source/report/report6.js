@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { VictoryChart, VictoryBar, VictoryTheme, VictoryAxis, VictoryLabel } from 'victory-native';
-import * as Crypto from 'expo-crypto';
+
 import { convertNumber } from '../api';
-import { Svg } from 'react-native-svg';
+
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
 export default function report6({ data, name }) {
   const [rdata, setRdata] = useState([]);
@@ -170,7 +170,7 @@ export default function report6({ data, name }) {
             <View >
               {rdata ? rdata.map((e, index) =>
 
-              (<View style={styles.order} key={index + 60}>
+              (<View style={styles.order} key={60 + "-" +index+ "-" + reportName}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>
@@ -233,10 +233,10 @@ export default function report6({ data, name }) {
             <View key={name}>
               {
 
-                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? ([
+                (typeof dataP != 'undefined' && typeof dataP[0] != 'undefined') ? (
 
                   dataP[0].x != 'undefined' ? renderChart() : null
-                ]) : null
+                ) : null
               }
               {/* {renderSummary()}  */}
             </View>
@@ -274,13 +274,13 @@ const styles = StyleSheet.create({
   },
   menuOrder: {
 
-    fontSize: 18,
+    fontSize: 16,
     color: 'white',
     padding: 5,
 
   },
   sum: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
   }
 
