@@ -32,7 +32,14 @@ const store = configureStore({
         statusList: statusSlice.reducer,
         report8List: report8Slice.reducer,
         reportList: reportSlice.reducer,
-    }
+
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+
+            serializableCheck: false,
+        }),
+
 })
 
 export default store

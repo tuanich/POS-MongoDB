@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { View, TouchableOpacity, Text, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Headertable from './headerTable';
+
 import Home from './homescreen';
 import Tablelist from './tableList';
 import Orderd from './orderdetail';
@@ -21,9 +21,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Awesomeicons from 'react-native-vector-icons/FontAwesome6';
 import Materialicons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { COLORS, FONTS, SIZES, icons, } from './source/constants';
+import { COLORS, icons, } from './source/constants';
 
-//import AppLoading from 'expo-app-loading';
+
 import { useFonts } from 'expo-font';
 import Itemlist from './itemlist';
 
@@ -244,8 +244,8 @@ function App() {
       <NavigationContainer onReady={onLayoutRootView}>
         <Stack.Navigator initialRouteName="Home">
 
-          <Stack.Screen name="Home" component={HomeScreen}
-            initialParams={{ post: false }}
+          <Stack.Screen name="Dashboard" component={HomeScreen}
+
             options={{
               //      headerShown: false,
               headerStyle: {
@@ -258,7 +258,7 @@ function App() {
 
             }} />
           <Stack.Screen name="Tablelist" component={_Tablelist}
-
+            //initialParams={{ post: true }}
 
             options={{
               //  header: ({ navigation, route }) => (<Headertable navigation={navigation} route={route} />),
@@ -393,10 +393,7 @@ function App() {
               }
             }}
           />
-
-
         </Stack.Navigator>
-
       </NavigationContainer>
 
     </Provider>

@@ -178,7 +178,7 @@ export default function report4({ data, name }) {
                     <ScrollView>
                         <View>
                             {rdata ? rdata.map((e, index) =>
-                            (<View style={styles.order} key={40 + "-" + reportName+"-"+index}>
+                            (<View style={styles.order} key={40 + "-" + name + "-" + index}>
                                 <View style={{ flex: 0.11, alignItems: 'center', padding: 5 }}>
                                     <Text>{index + 1}</Text>
                                 </View>

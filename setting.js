@@ -43,6 +43,7 @@ export default function setting() {
       <View style={styles.box}>
         <Text style={styles.textI}>API KEY:</Text>
         <TextInput
+          secureTextEntry={true}
           style={styles.textInput}
           value={Url.key}
           onChangeText={text => setUrl({ ...Url, ['key']: text })}

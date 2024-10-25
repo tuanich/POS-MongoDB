@@ -20,6 +20,7 @@ import { faClock, faUsd } from '@fortawesome/free-solid-svg-icons';
 
 
 
+
 let intervalID;
 function Tablelist({ navigation, route }) {
   const flashMessage = useRef();
@@ -30,7 +31,7 @@ function Tablelist({ navigation, route }) {
   const [loading, setLoading] = useState(false);
 
 
-  const orderLists = useSelector(orderlistSelector);
+  //const orderLists = useSelector(orderlistSelector);
 
 
 
@@ -39,7 +40,7 @@ function Tablelist({ navigation, route }) {
 
 
 
-  const [status, setStatus] = useState([]);
+  // const [status, setStatus] = useState([]);
 
 
   useEffect(() => {
@@ -184,6 +185,7 @@ function Tablelist({ navigation, route }) {
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
+  /* call back from child component */
   const pressTab = useCallback((i) => {
     setTab(i);
     let d = [];
@@ -201,8 +203,9 @@ function Tablelist({ navigation, route }) {
   const back = useCallback(() => {
 
     clearInterval(intervalID);
-    navigation.navigate("Home",
-      { post: true });
+    // route.post = 1;
+    navigation.navigate("Dashboard", { post: true });
+    //navigation.goBack();
   }, [])
 
   const clickTable = useCallback((item) => {
@@ -333,11 +336,14 @@ function Tablelist({ navigation, route }) {
                   <View style={{ flex: 1, alignItems: 'center' }}>
                     <Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{item[5]}</Text>
                   </View>
-                  <View style={{ flexDirection: 'row' }}>
+                  <View style={styles.showcaseContainer}>
 
-                    <FontAwesomeIcon icon={faClock} size={15} padding={10} /><Text style={item[2] === 0 ? styles._innerText : styles._innerText1}>{item[4]}</Text></View>
+                    <FontAwesomeIcon icon={faClock} size={15} padding={10} /><Text style={item[2] === 0 ? styles._innerText : styles._innerText1}>{item[4]}</Text>
+                  </View>
 
-                  <View style={{ flexDirection: 'row' }}><FontAwesomeIcon icon={faUsd} size={15} padding={10} /><Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{convertNumber(item[3])}</Text></View>
+                  <View style={styles.showcaseContainer}>
+                    <FontAwesomeIcon icon={faUsd} size={15} padding={10} /><Text style={item[2] === 0 ? styles.innerText : styles.innerText1}>{item[3] > 0 ? convertNumber(item[3]) : null}</Text>
+                  </View>
                 </View>
               </TouchableOpacity>)
             )
@@ -466,5 +472,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10
-  }
+  },
+  showcaseContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 1,
+  },
 })

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { mongoURL } from "@env";
 import { apikey } from "@env";
 import { faL } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
 
 
 
@@ -140,6 +141,98 @@ export const updateItems = async (data, type) => {
     }
 };
 
+export const updateLogout = async (logout, login) => {
+
+    const p = {
+        filter: { "login": login },
+        update: { "$set": { "logout": logout, "status": 0 } },
+        collection: "users", database: "banhcanhghe", dataSource: "Cluster0"
+    };
+
+    const o = {
+        method: 'post',
+        contentType: 'application/json',
+        body: JSON.stringify(p),
+        headers: {
+            "api-key": apikey,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        let res = await fetch(mongoURL + "updateOne", o);
+        let data = await res.json();
+
+        if (data.matchedCount >= 1)
+
+            return true
+        else false
+
+    } catch {
+        console.log("updateLogin loi :", Error);
+    }
+}
+
+export const insertLogin = async (data) => {
+
+    const p = {
+        document: data,
+        collection: "users", database: "banhcanhghe", dataSource: "Cluster0"
+    };
+
+    const o = {
+        method: 'post',
+        contentType: 'application/json',
+        body: JSON.stringify(p),
+        headers: {
+            "api-key": apikey,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        let res = await fetch(mongoURL + "insertOne", o);
+        let data = await res.json();
+
+        if (data.insertedId)
+            return true
+        else false
+
+    } catch {
+        console.log("inserLogin loi :", Error);
+    }
+}
+
+export const getLogin = async (data) => {
+    const p = {
+        filter: { "email": data, "status": 1 },
+        sort: { "_id": -1 },
+        limit: 1,
+        collection: "users", database: "banhcanhghe", dataSource: "Cluster0"
+    };
+
+    const o = {
+        method: 'post',
+        contentType: 'application/json',
+        body: JSON.stringify(p),
+        headers: {
+            "api-key": apikey,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        let res = await fetch(mongoURL + "find", o);
+        let data = await res.json();
+        //  console.log(data.documents);
+        return data.documents[0];
+    } catch {
+        console.log("getLogin loi :", Error);
+    }
+}
 
 export const insertPayment = async (data) => {
 
@@ -193,7 +286,7 @@ export const insertPayment = async (data) => {
 
 export const getPayments = async () => {
     const date = new Date();
-    // let res={};    
+    let res = {};
     var op = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit' };
     const d = date.toLocaleString('en-GB', op);
     const query = { "timestamp": { "$regex": d } };
@@ -237,12 +330,49 @@ export const getPayments = async () => {
         }
     };
 
+
+    const query1 = [{ "$addFields": { "date": { "$substr": ["$timestamp", 0, 10] } } },
+    {
+        "$group": {
+            "_id": "$date",
+            "quantity": { "$sum": 1 },
+
+            "total": { "$sum": "$total" },
+            "invoice": { "$max": "$invoice" }
+        }
+
+    },
+    {
+        "$sort": { "invoice": -1 }
+    },
+    {
+        "$limit": 7
+    }
+    ];
+
+    const payload1 = {
+        //filter: query, sort: order, limit: limit,
+        pipeline: query1,
+        collection: "payments", database: "banhcanhghe", dataSource: "Cluster0"
+    };
+
+    const options1 = {
+        method: 'post',
+        contentType: 'application/json',
+        body: JSON.stringify(payload1),
+        headers: { "api-key": apikey }
+    };
+
     try {
-        let respay = await fetch(mongoURL + "aggregate", o);
-        let data1 = await respay.json();
+        let resPay = await fetch(mongoURL + "aggregate", o);
+        let resReport4 = await fetch(mongoURL + "aggregate", options1);
+        resPay = await resPay.json();
+        resReport4 = await resReport4.json();
+        res.payments = resPay.documents;
+        res.report4 = resReport4.documents
 
 
-        return data1.documents;
+        return res;
 
 
     } catch {
@@ -423,6 +553,57 @@ export const getReport7 = async (m, y) => {
 
 
 
+}
+export const getReport4 = async () => {
+    let res = {};
+
+    const query1 = [{ "$addFields": { "date": { "$substr": ["$timestamp", 0, 10] } } },
+    {
+        "$group": {
+            "_id": "$date",
+            "quantity": { "$sum": 1 },
+
+            "total": { "$sum": "$total" },
+            "invoice": { "$max": "$invoice" }
+        }
+
+    },
+    {
+        "$sort": { "invoice": -1 }
+    },
+    {
+        "$limit": 7
+    }
+    ];
+
+
+    const payload1 = {
+        //filter: query, sort: order, limit: limit,
+        pipeline: query1,
+        collection: "payments", database: "banhcanhghe", dataSource: "Cluster0"
+    };
+
+
+
+    const options1 = {
+        method: 'post',
+        contentType: 'application/json',
+        body: JSON.stringify(payload1),
+        headers: { "api-key": apikey }
+    };
+
+    try {
+
+        let res = await fetch(mongoURL + "aggregate", options1);
+
+        res = await res.json().documents
+
+        return res
+
+
+    } catch {
+        console.log("getReport4 loi :", Error);
+    }
 }
 
 

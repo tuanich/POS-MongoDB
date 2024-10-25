@@ -15,5 +15,5 @@ web-build/
 .DS_Store
 + /android
 + /ios
-android
+android/
 ios/

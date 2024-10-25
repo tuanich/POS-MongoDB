@@ -47,7 +47,7 @@ export default function report5({ data, name }) {
       else {
         const d = data.map(item => item);
 
-        d.sort((a, b) => (b._id.localeCompare(a._id)));
+        d.sort((a, b) => (a._id.localeCompare(b._id)));
 
         return (d.map((item, index) => {
           if (typeof item._id == 'undefined' || typeof item.total == 'undefined') return {
@@ -181,7 +181,7 @@ export default function report5({ data, name }) {
             <View >
               {rdata ? rdata.map((e, index) =>
 
-              (<View style={styles.order} key={e._id + "-" + reportName}>
+              (<View style={styles.order} key={e._id + "-" + name}>
                 <View style={{ flex: 0.12, alignItems: 'center', padding: 5 }}>
                   <Text>{index + 1}</Text>
                 </View>

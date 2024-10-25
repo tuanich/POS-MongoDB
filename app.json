@@ -1,8 +1,10 @@
 {
   "expo": {
-    "name": "POS Restaurant",
-    "slug": "posmongo",
-    "version": "2.0.0",
+    "name": "pos-restaurant",
+    "originalFullName": "tuanich/pos-restaurant",
+    "slug": "pos-restaurant",
+    "scheme": "com.banhcanhghetrang.vn",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -18,22 +20,32 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "banhcanhghtrang.vn"
+      "bundleIdentifier": "com.banhcanhghetrang.vn",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.443531173003-apd3et6pn4em1mf1evqqsrhknkpu2pa3"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {},
-      "package": "banhcanhghtrang.vn"
+      "package": "com.banhcanhghetrang.vn"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "description": "",
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "eas": {
-        "projectId": "721a0fe8-11dd-40f4-9cff-1d4c5bd28452"
+        "projectId": "caa71c4c-87a9-4d9c-bfcd-5e0411b67c7f"
       }
     },
     "owner": "tuanich"
