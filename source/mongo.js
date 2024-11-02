@@ -381,6 +381,113 @@ export const getPayments = async () => {
     }
 }
 
+export const getMorePayment = async (page) => {
+    const query1 = [
+        {
+            "$group": {
+                "_id": "$timestamp",
+                "invoice": { "$max": "$invoice" }
+
+            }
+
+        },
+        {
+            "$sort": { "invoice": -1 }
+        },
+        {
+            "$limit": 30
+        }
+
+    ];
+    const p1 = {
+        //filter: query, sort: order, limit: limit,
+        pipeline: query1,
+        collection: "payments", database: "banhcanhghe", dataSource: "Cluster0"
+    };
+    const o1 = {
+        method: 'post',
+        contentType: 'application/json',
+        body: JSON.stringify(p1),
+        headers: {
+            "api-key": apikey,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+
+
+    try {
+        let resDate = await fetch(mongoURL + "aggregate", o1);
+
+        resDate = await resDate.json();
+        resDate = resDate.documents;
+
+        if (resDate.length >= 2) {
+
+            const query = { "timestamp": { "$regex": resDate[page]._id } };
+            const q = [
+                {
+                    "$lookup": {
+                        "from": "sales",
+                        "let": { "inv": "$invoice" },
+                        "pipeline": [{
+                            "$match": {
+                                "$expr":
+                                {
+                                    "$eq": ["$invoice", "$$inv"]
+                                }
+                            }
+                        },
+                        { $project: { _id: 0, type: 0, timestamp: 0, sku: 0, invoice: 0 } }
+                        ],
+                        "as": "sales"
+                    }
+                },
+                { "$match": query },
+                {
+                    "$sort": { "invoice": -1 }
+                }
+            ];
+            const p = {
+                //filter: query, sort: order, limit: limit,
+                pipeline: q,
+                collection: "payments", database: "banhcanhghe", dataSource: "Cluster0"
+            };
+            const o = {
+                method: 'post',
+                contentType: 'application/json',
+                body: JSON.stringify(p),
+                headers: {
+                    "api-key": apikey,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            let resPay = await fetch(mongoURL + "aggregate", o);
+
+            resPay = await resPay.json();
+
+            resPay = resPay.documents;
+
+
+            return resPay;
+        }
+        else return [];
+
+
+
+
+
+
+    } catch {
+        console.log("getMorePayments loi :", Error);
+        return false
+    }
+}
+
+
 export const getReport6 = async (m, y) => {
     let res = {};
 

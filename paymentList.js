@@ -1,5 +1,5 @@
-import { useEffect, useState, useLayoutEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useEffect, useState, useLayoutEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { useSelector } from 'react-redux';
 import { paymentlistSelector, saleslistSelector } from './source/redux/selector'
 import PaymentDetail from './paymentDetail';
@@ -7,12 +7,18 @@ import { convertNumber, pay } from './source/api';
 import { COLORS, FONTS, SIZES, icons, images } from './source/constants/';
 import mapping from "./mapping.json";
 import 'localstorage-polyfill';
+import { getMorePayment } from './source/mongo';
+
 
 
 const PAYMENT_STORAGE = "PAYMENT_KEY";
 
 
 export default function paymentList({ navigation, route }) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [page, setPage] = useState(1);
+
 
   const [sum, setSum] = useState();
   //const [sales, setSales] = useState();
@@ -30,7 +36,7 @@ export default function paymentList({ navigation, route }) {
   }, [navigation, sum]);
 
   useEffect(() => {
-
+    setIsLoading(true);
 
     const storagedPAYMENT = localStorage.getItem(PAYMENT_STORAGE);
 
@@ -42,58 +48,94 @@ export default function paymentList({ navigation, route }) {
       setDataP(d.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
 
       setSum(convertNumber(d.reduce((a, b) => a + (parseInt(b.total) || 0), 0)));
+      //  setIsLoading(false);
+
+
+    }
+    else {
+      fetchData();
     }
 
-
-
-
-
-    // let data = payment.map(item => item);
-
-
-    /*
-        if (JSON.stringify(dataInvoice) != '[]') {
-    
-          let s = dataInvoice.reduce((result, item) => ({
-            ...result,
-            [item['invoice']]: [
-              ...(result[item['invoice']] || []),
-              item,
-            ],
-          }),
-            {},
-          );
-    
-    
-          delete s['invoice'];
-       
-          setSales(s);*
-        }*/
   }, [])
 
+  const fetchData = async () => {
+
+    setIsLoading(true);
+    let data = await getMorePayment(page);
+    if (data && data.length > 0) {
+      data = data.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+      setDataP([...dataP, ...data]);
+      setIsLoading(false);
+    }
+
+  }
+
+  const fetchNextPage = () => {
+
+    if (!isLoading) {
+      setPage(prevPage => prevPage + 1);
+      fetchData();
+    }
+
+  }
+
+  const loadingButton = () => {
+
+    setIsLoading(false);
+
+    setPage(prevPage => prevPage + 1);
+    fetchData();
 
 
-  // const groupBy = (posts, key) => {
 
-  //   posts.reduce((result, item) => ({
-  //     ...result,
-  //     [item[key]]: [
-  //       ...(result[item[key]] || []),
-  //       item,
-  //     ],
-  //   }), 
-  //   {},
-  // );};
+
+  }
+
+
+
+  const renderItem = ({ item }) => {
+
+    return (
+      <View key={item._id} style={{ flex: 1, borderRadius: 12, backgroundColor: COLORS.white, marginTop: 10, marginLeft: 10, marginRight: 10 }}>
+        <TouchableOpacity onPress={() => print(item.sales, item.timestamp, item.invoice, item.total, item.type)}>
+          <View style={styles.button}>
+
+            <View style={{ flex: 1.25, alignItems: 'flex-start' }}>
+              <Text>{item.timestamp}</Text>
+            </View>
+            <View style={{ flex: 1, alignItems: 'flex-start' }}>
+              <Text>{mapping.ban[item.type]}</Text>
+            </View>
+            <View style={{ flex: 1.2, alignItems: 'flex-end' }}>
+              <Text style={{ fontWeight: 'bold' }}>Total: {convertNumber(parseInt(item.total))}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        <>
+
+          {item.sales ?
+            item.sales.map((item, index) => (
+              <PaymentDetail key={index} item={item} />
+            ))
+            : null}
+        </>
+      </View>
+    )
+  }
+  const ListEndLoader = () => {
+    return (
+      <TouchableOpacity onPress={loadingButton}>
+        <Text style={{ textAlign: 'center', padding: 10, fontSize: 16 }}>{isLoading ? 'Loading history...' : 'Load More'}</Text>
+      </TouchableOpacity>
+    )
+  };
+
+
 
 
   const print = (sales, day, id, sum, type) => {
 
     const order = sales;
-    /* let order = [];
-     sales[id].forEach(item => {
-       let datalet = { description: `${item.description}`, quan: `${item.quantity}`, subtotal: `${item.quantity * item.price}` };
-       order.push(datalet);
-     })*/
 
     navigation.navigate("Printer", { day: { day }, order: { order }, type: { type }, sum: { sum } });
   };
@@ -116,37 +158,16 @@ export default function paymentList({ navigation, route }) {
   }
   else {
     return (
-      <ScrollView>
+      <FlatList
+        data={dataP}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+        onEndReached={fetchNextPage}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={ListEndLoader}
+      >
 
-        {dataP ?
-          dataP.map((files, index) => (
-            <View key={index} style={{ flex: 1, borderRadius: 12, backgroundColor: COLORS.white, marginTop: 10, marginLeft: 10, marginRight: 10 }}>
-              <TouchableOpacity onPress={() => print(files.sales, files.timestamp, files.invoice, files.total, files.type)}>
-                <View style={styles.button}>
-
-                  <View style={{ flex: 1.25, alignItems: 'flex-start' }}>
-                    <Text>{files.timestamp}</Text>
-                  </View>
-                  <View style={{ flex: 1, alignItems: 'flex-start' }}>
-                    <Text>{mapping.ban[files.type]}</Text>
-                  </View>
-                  <View style={{ flex: 1.2, alignItems: 'flex-end' }}>
-                    <Text style={{ fontWeight: 'bold' }}>Total: {convertNumber(parseInt(files.total))}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <>
-
-                {files.sales ?
-                  files.sales.map((item, index) => (
-                    <PaymentDetail key={index} item={item} />
-                  ))
-                  : null}
-              </>
-            </View>
-          ))
-          : null}
-      </ScrollView>
+      </FlatList>
     )
   }
 

@@ -84,7 +84,8 @@ function HomeScreen({ navigation, route }) {
     let quantity = 0;
     let salesYesterday = summary.salesYesterday;
     let dataP = [];
-    dataP = summary.dataP.map(item => item);
+    if (summary.dataP) { dataP = summary.dataP.map(item => item); }
+
 
     if (storagedPayment) {
       storagedPayment = storagedPayment.replace(/\'/g, '\"');
@@ -100,6 +101,7 @@ function HomeScreen({ navigation, route }) {
       });
     }
     if (dataP.length > 0) {
+
       dataP[dataP.length - 1].sales = salesToday;
       let percent = ((salesToday / salesYesterday) * 100).toFixed(0) - 100;
       setSummary({ salesToday, quantity, salesYesterday, percent, totalAwait, available, dataP });
@@ -195,12 +197,14 @@ function HomeScreen({ navigation, route }) {
 
 
 
-  const processData = useCallback((data) => {
+  const processData = (data) => {
+
     if (!data || data.length === 0) {
       return [{ x: '0', y: 0 }];
     } else {
       const d = data.map(item => item);
-      d.sort((a, b) => (a._id.localeCompare(b._id)));
+      //    d.sort((a, b) => (b._id.localeCompare(a._id)));
+      d.reverse();
       return d.map((item) => {
         if (!item._id || !item.total) {
           return { x: '0', y: 0 };
@@ -212,7 +216,7 @@ function HomeScreen({ navigation, route }) {
         }
       });
     }
-  }, [])
+  }
 
   const signed = (sign, GoogleSign) => {
 
@@ -301,8 +305,12 @@ function HomeScreen({ navigation, route }) {
             <Text style={styles.totalSalesText}>Số tiền chờ TT: <Text style={{ color: 'red' }}>{convertNumber(summary.totalAwait)}</Text></Text>
 
             <TouchableOpacity onPress={() => { navigation.navigate('Payments') }}>
-              <Text style={styles.totalSalesText2}>Xem chi tiết đơn </Text>
+              <View style={styles.showcaseContainer2}>
+                <Text style={styles.totalSalesText2}>Xem chi tiết đơn </Text>
+                <AntDesign name='doubleright' color={COLORS.primary} size={12} />
+              </View>
             </TouchableOpacity>
+
 
           </View>
 
@@ -504,6 +512,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 8,
+  },
+  showcaseContainer2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+
   },
 
 });
