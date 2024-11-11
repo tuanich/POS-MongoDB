@@ -21,6 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import GoogleSignIn from './googlesignin';
 import { format } from 'date-fns';
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { faCreativeCommonsPd } from '@fortawesome/free-brands-svg-icons';
 
 const ITEM_STORAGE = "ITEM_KEY";
 const STATUS_STORAGE = "STATUS_KEY";
@@ -67,6 +68,7 @@ function HomeScreen({ navigation, route }) {
   useFocusEffect(
 
     useCallback(() => {
+      //   console.log('route', route.params?.post);
       if (route.params?.post)
 
         loadStoredData();
@@ -84,12 +86,16 @@ function HomeScreen({ navigation, route }) {
     let quantity = 0;
     let salesYesterday = summary.salesYesterday;
     let dataP = [];
-    if (summary.dataP) { dataP = summary.dataP.map(item => item); }
+    let today;
+    let _today;
+    if (summary.dataP) { dataP = summary.dataP.map(item => item); today = summary.dataP[dataP.length - 1].day; }
 
 
     if (storagedPayment) {
       storagedPayment = storagedPayment.replace(/\'/g, '\"');
       _storagePayment = JSON.parse(storagedPayment);
+
+      _today = _storagePayment[0].timestamp.substring(0, 5), today;
       _storagePayment.forEach(item => { quantity++; salesToday += item.total; });
     }
     if (storagedStatus) {
@@ -101,8 +107,15 @@ function HomeScreen({ navigation, route }) {
       });
     }
     if (dataP.length > 0) {
+      if (today && today !== _today) {
+        dataP.push({ day: _today, sales: salesToday });
+        dataP = dataP.slice(-7);
+        salesYesterday = dataP[dataP.length - 2].sales;
+      }
+      else {
+        dataP[dataP.length - 1].sales = salesToday;
+      }
 
-      dataP[dataP.length - 1].sales = salesToday;
       let percent = ((salesToday / salesYesterday) * 100).toFixed(0) - 100;
       setSummary({ salesToday, quantity, salesYesterday, percent, totalAwait, available, dataP });
     }
