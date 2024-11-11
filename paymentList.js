@@ -122,6 +122,11 @@ export default function paymentList({ navigation, route }) {
       </View>
     )
   }
+
+  const renderFooter = useCallback(() => {
+    return <ListEndLoader />;
+  }, [ListEndLoader]);
+
   const ListEndLoader = () => {
     return (
       <TouchableOpacity onPress={loadingButton}>
@@ -164,7 +169,7 @@ export default function paymentList({ navigation, route }) {
         renderItem={renderItem}
         onEndReached={fetchNextPage}
         onEndReachedThreshold={0.1}
-        ListFooterComponent={ListEndLoader}
+        ListFooterComponent={renderFooter}
       >
 
       </FlatList>
